@@ -73,7 +73,7 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
       if (!user) throw 'Landlord user not found';
 
       // confirm the user is a landlord
-      if (!user.accountTypes.includes(2)) throw 'User not a landlord'
+      // if (!user.accountTypes.includes(2)) throw 'User not a landlord'
 
       //Confirm the tenant user exist
       const tenant = await findUserByEmail(tenantEmail);
@@ -81,7 +81,7 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
       if (!tenant) throw 'Tenant user not found';
 
       // confirm the user is a tenant
-      if (!tenant.accountTypes.includes(1)) throw 'User not a Tenant'
+      // if (!tenant.accountTypes.includes(1)) throw 'User not a Tenant'
 
 
       //Confirm property exist
