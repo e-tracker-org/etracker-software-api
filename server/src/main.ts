@@ -85,12 +85,12 @@ app.use(NotFoundHandler);
 
 app.use(ErrorHandler);
 
-// app.set('view engine', 'ejs');
-// app.set('views', __dirname + '/src/views');
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/src/views');
 
-// app.get('/admin/dashboard', (req, res) => {
-//   res.render('admin-dashboard');
-// });
+app.get('/admin/dashboard', (req, res) => {
+  res.render('admin-dashboard');
+});
 
 const server = app.listen(PORT, async () => {
   await createDirectories();
