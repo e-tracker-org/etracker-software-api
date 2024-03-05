@@ -78,7 +78,7 @@ app.use(
 app.use(helmet());
 app.use(deserializeUser);
 
-app.use('/api/v1', routerV1);
+app.use('/api/v1/', routerV1);
 
 app.use(NotFoundHandler);
 
