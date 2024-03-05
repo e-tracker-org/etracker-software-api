@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Admin Dashboard</title>
+  </head>
+  <body>
+    <h1>Admin Dashboard</h1>
+
+    <ul>
+      <% for (const request of pendingKycRequests) { %>
+      <li>
+        KYC ID: <%= request.kycId %>
+        <form method="POST" action="/admin/dashboard/approve-kyc/<%= request.kycId %>">
+          <button type="submit">Approve</button>
+        </form>
+        <form method="POST" action="/admin/dashboard/disapprove-kyc/<%= request.kycId %>">
+          <input type="text" name="reason" placeholder="Disapproval Reason" required />
+          <button type="submit">Disapprove</button>
+        </form>
+      </li>
+      <% } %>
+    </ul>
+  </body>
+</html>
