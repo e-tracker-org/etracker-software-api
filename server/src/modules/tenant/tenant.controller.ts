@@ -79,7 +79,7 @@ export async function addTenantToProperty(req: Request<{}, {}, RegisterUserBody>
     if(!user)  throw 'Landlord user not found';
 
     // confirm the user is a landlord
-    if(!user.accountTypes.includes(2)) throw 'User not a landlord'
+    // if(!user.accountTypes.includes(2)) throw 'User not a landlord' // removin this error b'c not neccessary
 
     //Validate request body and params
     if(!tenantId) throw 'Tenant id is required';
@@ -91,7 +91,7 @@ export async function addTenantToProperty(req: Request<{}, {}, RegisterUserBody>
     if(!tenant) throw 'Tenant user not found';
 
     // confirm the user is a tenant
-    if(!tenant.accountTypes.includes(1)) throw 'User not a Tenant'
+    // if(!tenant.accountTypes.includes(1)) throw 'User not a Tenant' // removin this error b'c not neccessary
 
 
     //Confirm property exist
