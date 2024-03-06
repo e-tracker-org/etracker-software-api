@@ -11,7 +11,7 @@ import { User } from './register.model';
 import {findById as findPropertyById} from "../../property/property.service";
 import {PropertyStatus} from "../../landlord/landlord.model";
 
-const db = require("../../models");
+const db = require("../../../models/");
 const NewTenant = db.tenant;
 
 export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>, res: Response, next: NextFunction) {
