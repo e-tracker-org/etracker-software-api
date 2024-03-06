@@ -5,10 +5,10 @@ import identityDocumentStage from './stages/identityDocumentStage.kyc';
 import addPropertyStage from './stages/addPropertyStage.kyc';
 import { createNewKyc, getNextKycStage, processKycSwap, updateOngoingKyc } from './helper/helpers.kyc';
 import { StatusCodes } from 'http-status-codes';
-import {findKycByEmail, findKycById} from './kyc.service';
-import {updateProfileById, updateUserById} from '../auth/register/register.service';
-import {findByEmail, findById} from "../profile/profile.service";
-import {KycStatus} from "./kyc.model";
+import { findKycByEmail, findKycById, findKycsByStatus, findAllKycs } from './kyc.service';
+import { updateProfileById, updateUserById } from '../auth/register/register.service';
+import { findByEmail, findById } from '../profile/profile.service';
+import { KycStatus } from './kyc.model';
 
 async function checkParams(req: Request, res: Response, next: NextFunction) {
   const { accountType, stage } = req.params;
@@ -68,7 +68,6 @@ export async function createKycHandler(req: Request, res: Response, next: NextFu
 }
 
 export async function switchOngoingKyc(req: Request, res: Response, next: NextFunction) {
-
   const { user } = res.locals;
 
   const { currentKyc } = user;
@@ -119,7 +118,7 @@ export async function updateKycStatus(req: Request, res: Response, next: NextFun
     if (!kycDetails) {
       return apiResponse(res, 'Kyc details not found', null, StatusCodes.NOT_FOUND);
     }
-    if(kycDetails.status === KycStatus.COMPLETE) {
+    if (kycDetails.status === KycStatus.COMPLETE) {
       if (status !== 'approve' && status !== 'reject') {
         return apiResponse(res, 'Invalid Kyc status', null, StatusCodes.BAD_REQUEST);
       }
@@ -127,7 +126,7 @@ export async function updateKycStatus(req: Request, res: Response, next: NextFun
       const updateProfile = await findById(kycDetails.userId);
       //Handle kyc approve status
       if (status === 'approve') {
-        handleKycApprove(kycDetails, updateProfile)
+        handleKycApprove(kycDetails, updateProfile);
       }
 
       //Handle kyc reject status
@@ -138,7 +137,7 @@ export async function updateKycStatus(req: Request, res: Response, next: NextFun
       // Handle successful update and return response
       return apiResponse(res, 'Kyc status updated successfully', null, StatusCodes.OK);
     } else {
-      throw 'Kyc not completed'
+      throw 'Kyc not completed';
     }
   } catch (error) {
     // Handle error and display error message or perform appropriate actions
@@ -147,30 +146,29 @@ export async function updateKycStatus(req: Request, res: Response, next: NextFun
   }
 }
 
-const handleKycApprove= async (kycDetails, updateProfile ) => {
+const handleKycApprove = async (kycDetails, updateProfile) => {
   kycDetails.status = KycStatus.APRROVED;
 
   // Create an array of account type references
   const accountTypeRef = [kycDetails.accountType];
 
   // delete currentKyc object from the database
-  const profileDetails = await  updateProfileById(updateProfile._id, updateProfile)
+  const profileDetails = await updateProfileById(updateProfile._id, updateProfile);
   profileDetails.accountTypes = accountTypeRef;
   await Promise.all([
     kycDetails.save(), // Save the modified kycDetails
-    profileDetails.save() // Update the profile object in the database
+    profileDetails.save(), // Update the profile object in the database
   ]);
+};
 
-}
-
-const handleKycReject= async (kycDetails, updateProfile ) => {
+const handleKycReject = async (kycDetails, updateProfile) => {
   kycDetails.status = KycStatus.INCOMPLETE;
 
   // Confirm if accounttype already exist and approved
-  const accountExist = updateProfile.accountTypes.includes( kycDetails.accountType);
+  const accountExist = updateProfile.accountTypes.includes(kycDetails.accountType);
 
   // Remove account type from approved accounts on profile if exist
-  if(accountExist) {
+  if (accountExist) {
     const newAccountTypes = updateProfile.accountTypes.filter((accountType) => accountType !== kycDetails.accountType);
     updateProfile.accountTypes = newAccountTypes;
   }
@@ -180,14 +178,31 @@ const handleKycReject= async (kycDetails, updateProfile ) => {
     nextStage: +kycDetails.filledStages[kycDetails.filledStages.length - 1],
     accountType: kycDetails.accountType,
     status: KycStatus.INCOMPLETE,
-    kycId: kycDetails._id
+    kycId: kycDetails._id,
   };
 
   await Promise.all([
     kycDetails.save(), // Save the modified kycDetails
-    updateUserById(updateProfile._id, updateProfile)// Update the profile object in the database
+    updateUserById(updateProfile._id, updateProfile), // Update the profile object in the database
   ]);
+};
 
+export async function getKycsForApproval(req: Request, res: Response, next: NextFunction) {
+  try {
+    const kycsForApproval = await findKycsByStatus(KycStatus.COMPLETE);
+    apiResponse(res, 'Success', kycsForApproval);
+  } catch (error) {
+    console.error('Error retrieving KYC for approval', error);
+    next(error);
+  }
 }
 
-
+export async function getAllKycs(req: Request, res: Response, next: NextFunction) {
+  try {
+    const allKycs = await findAllKycs();
+    res.json(allKycs);
+  } catch (error) {
+    console.error('Error fetching all KYCs:', error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
