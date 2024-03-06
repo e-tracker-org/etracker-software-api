@@ -1,5 +1,5 @@
 export const PORT = process.env.PORT;
-export const CORS_ORIGIN = process.env.CORS_ORIGIN || ``;
+export const CORS_ORIGIN = process.env.CORS_ORIGIN || `http://localhost:3000`;
 export const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING || `mongodb://localhost:27017/e-tracker-db`;
 export const GMAIL_USER = process.env.GMAIL_USER;
 export const GMAIL_PASS = process.env.GMAIL_PASS;

@@ -18,6 +18,12 @@ import tenantRouter from '../modules/tenant/tenant.route';
 import landlordRouter from '../modules/landlord/landlord.route';
 import ReceiptRoute from "../modules/receipt/receipt.route";
 import transactionRoute from "../modules/transaction/transaction.route";
+
+// new route structure
+// @ts-ignore
+import newTenantRouter from '../routes/tenants.routes';
+
+
 const router = express.Router();
 
 interface RoutesInterface {
@@ -103,6 +109,10 @@ const routes: RoutesInterface[] = [
   {
     path: '/con-job',
     route: conJobRouter,
+  },
+  {
+    path: '/tenants', // using this one for simplicity
+    route: newTenantRouter,
   },
 ];
 
