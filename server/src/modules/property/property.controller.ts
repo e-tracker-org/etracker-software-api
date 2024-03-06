@@ -10,7 +10,7 @@ import {
   findByStatus,
   findByUserId
 } from './property.service';
-import { Property } from './property.model';
+import { Property, PropertyModel } from './property.model';
 import { findByEmail } from '../profile/profile.service';
 import { findUserByEmail } from '../auth/register/register.service';
 import {getFileById} from "../uploads/upload.services";

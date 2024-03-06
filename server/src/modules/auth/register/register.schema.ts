@@ -1,4 +1,5 @@
-import { object, string, TypeOf } from 'zod';
+import { array, number, object, string, TypeOf } from 'zod';
+
 
 export const registerUserSchema = {
   body: object({
@@ -23,6 +24,7 @@ export const registerUserSchema = {
     confirmPassword: string({
       required_error: 'username is required',
     }),
+    accountTypes: array(number()).default([]),
   }).refine((data) => data.password === data.confirmPassword, {
     message: 'Passwords do not match',
     path: ['confirmPassword'],
