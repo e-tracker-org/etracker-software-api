@@ -21,6 +21,11 @@ import {StatusCodes} from "http-status-codes";
 import {ReceiptBody} from "../receipt/receipt.schema";
 import {sendReceiptEmail} from "../receipt/receipt.controller";
 
+
+// New DB insert mechanism
+const db = require("../../models");
+const NewTenant = db.tenant;
+
 export async function findAllTenantHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const users = await findAll();
@@ -101,7 +106,44 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
           property.tenant = [...property.tenant, {tenantId: tenant?.id, status: PropertyStatus.INCOMPLETE}]
           Object.assign(property, property);
           const data = await property.save();
-        }
+
+          const newTenant = new NewTenant({
+            userId: user.id,
+            propertyId: property.id,
+            landlordId: property.current_owner,
+            status: PropertyStatus.INCOMPLETE,
+          });
+          
+          // Check if the tenant already exists
+          NewTenant.findOne({
+            userId: newTenant.userId,
+            propertyId: newTenant.propertyId,
+            landlordId: newTenant.landlordId,
+          })
+            .then((existingTenant: any) => {
+              if (existingTenant) {
+                // Tenant already exists, handle accordingly (e.g., send an error response)
+                console.log('Tenant already exists:', existingTenant);
+                // Handle the case where the tenant already exists
+              } else {
+                // Save the tenant in the database if it doesn't already exist
+                newTenant.save()
+                  .then((tenantData: any) => {
+                    // Handle successful save
+                    console.log('Tenant saved successfullys:', tenantData);
+                  })
+                  .catch((err: { message: any; })  => {
+                    // Handle save error
+                    console.error('Error saving tenant:', err.message);
+                  });
+              }
+            })
+            .catch((err: { message: any; }) => {
+              // Handle query error
+              console.error('Error checking for existing tenant:', err.message);
+            });
+          }
+         
         // Prepare email info
         tenant.address = property.address;
         tenant.tenantId = tenant?.id;

@@ -2,9 +2,10 @@ import { CORS_ORIGIN } from '../../constants';
 import { User } from '../../modules/auth/register/register.model';
 
 export const emailConfirmationLinkTemplate = (user: User, token: string) => {
-  const confirmationLink = `${
-    CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
-  }/auth/signin?token=${token}`;
+  const confirmationLink = `${CORS_ORIGIN}/auth/signin?token=${token}`;
+  // const confirmationLink = `${
+  //   CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
+  // }/auth/signin?token=${token}`;
   const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
         <p>Thank you for registering with E-tracka. <br/>
@@ -34,9 +35,11 @@ export const emailTokenTemplate = (user: User, otp: string) => {
 };
 
 export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantInfo: any) => {
-    const confirmationLink = `${
-        CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
-    }/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
+    const confirmationLink = `${CORS_ORIGIN}/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
+  //   const confirmationLink = `${
+  //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
+  // }/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
+  
     const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
         <p>
@@ -54,9 +57,10 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
 };
 
 export const inviteTenantLinkTemplate = () => {
-    const inviteLink = `${
-        CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
-    }/auth/signup`;
+    const inviteLink = `${CORS_ORIGIN}/auth/signup`;
+  //   const inviteLink = `${
+  //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
+  // }/auth/signup`;
     const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant</h4>,
         <p>
