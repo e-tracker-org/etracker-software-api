@@ -170,11 +170,11 @@ exports.landlordTenant = (req, res) => {
                 };
               });
     
-              const sortedData = combinedData.sort((a, b) => {
-                return new Date(b.userData.createdAt) - new Date(a.userData.createdAt);
-              });
+            //   const sortedData = combinedData.sort((a, b) => {
+            //     return new Date(b.userData.createdAt) - new Date(a.userData.createdAt);
+            //   });
     
-              res.status(200).send(sortedData);
+              res.status(200).send(combinedData);
             });
         })
         .catch(err => {

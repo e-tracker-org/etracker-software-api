@@ -8,8 +8,8 @@ import { RegisterUserBody } from './register.schema';
 import { createUser, findUserByEmail } from './register.service';
 import { emailConfirmationLinkTemplate } from '../../../utils/email-templates';
 import { User } from './register.model';
-import {findById as findPropertyById} from "../../property/property.service";
-import {PropertyStatus} from "../../landlord/landlord.model";
+import { findById as findPropertyById } from "../../property/property.service";
+import { PropertyStatus } from "../../landlord/landlord.model";
 import { PropertyModel } from '../../property/property.model';
 
 const db = require("../../../models/");
@@ -26,26 +26,24 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
     const isUser = await findUserByEmail(email);
 
     if (!!isUser) {
-      
       const { isEmailVerified } = isUser;
 
       if (!!isEmailVerified) {
         throw 'User already exists';
       }
 
-    await sendEmaiLink(isUser);
-     
+      await sendEmaiLink(isUser);
+    }
+
     const user = await createUser(req.body);
 
     const propertyId = req.body.propertyId;
 
     if (propertyId) {
-
       const property = await findPropertyById(propertyId);
 
       if (property) {
-        
-        await NewUser.findByIdAndUpdate(user.id, { $push: { accountTypes: 1 } }, { new: true });
+        // await NewUser.findByIdAndUpdate(user.id, { $push: { accountTypes: 1 } }, { new: true }); // Don't update now
 
         const newTenant = new NewTenant({
           userId: user.id,
@@ -86,11 +84,9 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
       }
     }
 
-    // User created successfully
+    // Send verification email after the user is created and the tenant is processed
     await sendEmaiLink(user);
     return apiResponse(res, 'User created and verification mail is sent successfully', user, 201);
-  }
-
   } catch (err) {
     next(err);
   }
@@ -119,3 +115,4 @@ export const sendEmaiLink = async (user: any) => {
   const token = signJwt({ sub: user.email }, EMAIL_VERIFICATION_EXPIRES_IN);
   return await sendEmail(user.email, emailFormat.subject, emailConfirmationLinkTemplate(user, token));
 };
+
