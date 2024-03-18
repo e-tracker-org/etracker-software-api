@@ -22,6 +22,8 @@ import transactionRoute from "../modules/transaction/transaction.route";
 // new route structure
 // @ts-ignore
 import newTenantRouter from '../routes/tenants.routes';
+// @ts-ignore
+import newUserRoute from '../routes/auth.routes';
 
 
 const router = express.Router();
@@ -113,6 +115,10 @@ const routes: RoutesInterface[] = [
   {
     path: '/tenants', // using this one for simplicity
     route: newTenantRouter,
+  },
+  {
+    path: '/user-profile', // using this one for simplicity
+    route: newUserRoute,
   },
 ];
 
