@@ -4,6 +4,7 @@ import {
   findUserByEmailHandler,
   findUserByIdHandler,
   updateUserHandler,
+  findAllUserHandler,
 } from './profile.controller';
 import requireUser from '../../middleware/requireUser';
 
@@ -12,6 +13,7 @@ import { updateProfileSchema } from './profile.schema';
 
 const router = express.Router();
 
+router.route('/all').get(findAllUserHandler);
 router
   .route('/')
   .get(requireUser, findUserByEmailHandler)

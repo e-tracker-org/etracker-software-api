@@ -20,6 +20,7 @@ import RedisStore from 'connect-redis';
 import passport from 'passport';
 import createDirectories from './utils/directories';
 const MongoStore = require('connect-mongo');
+const ejs = require('ejs');
 
 // Initialize client.
 // let redisClient = createClient();
@@ -83,6 +84,13 @@ app.use('/api/v1/', routerV1);
 app.use(NotFoundHandler);
 
 app.use(ErrorHandler);
+
+app.set('view engine', 'ejs');
+app.set('views', __dirname + '/src/views');
+
+app.get('/admin/dashboard', (req, res) => {
+  res.render('admin-dashboard');
+});
 
 const server = app.listen(PORT, async () => {
   await createDirectories();
