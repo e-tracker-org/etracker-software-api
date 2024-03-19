@@ -48,16 +48,27 @@ export async function createTransactionHandler(
     transactionInfo.created_by = user.id;
     const recipients = [];
 
+    const processedIds = new Set(); // Set to store processed IDs
+
     for (const tenantId of tenants) {
-      // array of tenant's or users id
-      //create each transaction for each tenant
-      delete transactionInfo.tenants;
-      transactionInfo.received_by = tenantId;
-      transactionInfo.status = 'PAID';
-      const receipt = await createTransaction(transactionInfo);
-      //set up receipients email to send receipt to
-      const tenantInfo = await findById(tenantId);
-      recipients.push({ id: tenantInfo.id, email: tenantInfo.email });
+        // Check if the ID has already been processed
+        if (processedIds.has(tenantId)) {
+            continue; // Skip if the ID has already been processed
+        }
+    
+        // Add the ID to the set of processed IDs
+        processedIds.add(tenantId);
+    
+        // array of tenant's or users id
+        // create each transaction for each tenant
+        delete transactionInfo.tenants;
+        transactionInfo.received_by = tenantId;
+        transactionInfo.status = 'PAID';
+        const receipt = await createTransaction(transactionInfo);
+    
+        // set up recipients' email to send receipt to
+        const tenantInfo = await findById(tenantId);
+        recipients.push({ id: tenantInfo.id, email: tenantInfo.email });
     }
     transactionInfo.description = categoryDescriptions[lowercaseCategory];
     transactionInfo.category = category;
