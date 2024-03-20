@@ -25,6 +25,8 @@ import newTenantRouter from '../routes/tenants.routes';
 // @ts-ignore
 import newUserRoute from '../routes/auth.routes';
 // @ts-ignore
+import tenantRating from '../routes/rating.routes';
+// @ts-ignore
 import imageUserRoute from '../routes/image.routes';
 
 const router = express.Router();
@@ -123,6 +125,10 @@ const routes: RoutesInterface[] = [
   },
   {
     path: '/images',
+    route: imageUserRoute,
+  },
+  {
+    path: '/tenant-rating',
     route: imageUserRoute,
   },
 ];
