@@ -12,8 +12,6 @@ interface KycInfo {
   currentStage: number;
 }
 
-
-
 const schemaOptions: IModelOptions = {
   schemaOptions: {
     toJSON: {
@@ -83,11 +81,14 @@ export class User {
   @prop({ default: false })
   public isUserVerified?: boolean;
 
-  @prop({  default: [] })
+  @prop({ default: [] })
   public accountTypes?: number[];
 
   @prop({ type: () => Object })
   public currentKyc?: KycInfo;
+
+  @prop({ default: '' })
+  public profileImage?: string;
 }
 
 export const UserModel = getModelForClass(User, {
