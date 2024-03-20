@@ -2,6 +2,8 @@ const db = require("../models");
 const { PropertyStatus } = require("../modules/property/property.model");
 const Tenant = db.tenant;
 const Transaction = db.transaction;
+const Files = db.files;
+
 const User = db.user;
 
 // Create and Save a new Tenant
@@ -213,9 +215,28 @@ exports.findTenantTransaction = (req, res) => {
   }
   const id = req.params.tenantId;
 
-  console.log('okay',id)
-
   Transaction.find({ received_by: id })
+    .then(data => {
+      if (!data)
+        res.status(404).send({ message: "Not found Tenant transactions with id " + id });
+      else res.status(200).send(data);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .send({ message: "Error retrieving Tenant transactions with id=" + id });
+    });
+};
+
+
+// Find tenant files
+exports.findTenantFiles = (req, res) => {
+  if(!req.headers.authorization) {
+    return res.status(401).send({ message: "Unauthorized request" });
+  }
+  const id = req.params.tenantId;
+
+  Files.find({ userId: id })
     .then(data => {
       if (!data)
         res.status(404).send({ message: "Not found Tenant transactions with id " + id });
