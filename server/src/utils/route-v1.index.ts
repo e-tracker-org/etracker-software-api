@@ -16,15 +16,16 @@ import accountTypeRouter from '../modules/account-type/account-type.route';
 import kycRouter from '../modules/kyc/kyc.route';
 import tenantRouter from '../modules/tenant/tenant.route';
 import landlordRouter from '../modules/landlord/landlord.route';
-import ReceiptRoute from "../modules/receipt/receipt.route";
-import transactionRoute from "../modules/transaction/transaction.route";
+import ReceiptRoute from '../modules/receipt/receipt.route';
+import transactionRoute from '../modules/transaction/transaction.route';
 
 // new route structure
 // @ts-ignore
 import newTenantRouter from '../routes/tenants.routes';
 // @ts-ignore
 import newUserRoute from '../routes/auth.routes';
-
+// @ts-ignore
+import imageUserRoute from '../routes/image.routes';
 
 const router = express.Router();
 
@@ -119,6 +120,10 @@ const routes: RoutesInterface[] = [
   {
     path: '/user-profile', // using this one for simplicity
     route: newUserRoute,
+  },
+  {
+    path: '/images',
+    route: imageUserRoute,
   },
 ];
 

@@ -41,6 +41,7 @@ export const updateProfileSchema = {
       accountType: number().optional(),
       kycStage: number().optional(),
     }).optional(),
+    profileImage: string().url().optional(),
   }),
   params: object({
     profileId: string(),
