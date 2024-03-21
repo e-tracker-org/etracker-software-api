@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const ratingController = require('../controllers/rating.controller.js');
+const ratingController = require('../controller/rating.controller');
 
 // Route to create a rating
 router.post('/ratings', ratingController.createRating);

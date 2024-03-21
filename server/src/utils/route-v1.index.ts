@@ -129,7 +129,7 @@ const routes: RoutesInterface[] = [
   },
   {
     path: '/tenant-rating',
-    route: imageUserRoute,
+    route: tenantRating,
   },
 ];
 
