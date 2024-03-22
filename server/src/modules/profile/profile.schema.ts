@@ -42,6 +42,7 @@ export const updateProfileSchema = {
       kycStage: number().optional(),
     }).optional(),
     profileImage: string().url().optional(),
+    rating: number().optional(),
   }),
   params: object({
     profileId: string(),
