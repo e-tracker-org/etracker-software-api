@@ -18,6 +18,7 @@ module.exports = (mongoose) => {
       accountTypes: { type: [Number], default: [] },
       currentKyc: { type: Object, default: null },
       profileImage: { type: String, default: '' },
+      rating: { type: Number, default: 0 },
     },
     { timestamps: true }
   );
