@@ -110,6 +110,45 @@ exports.findAll = (req, res) => {
         });
       });
   };
+
+
+  // updat tenant rating
+exports.updateRating = (req, res) => {
+  if (!req.headers.authorization) {
+      return res.status(401).send({ message: "Unauthorized request" });
+  }
+
+  const id = req.params.id;
+  const ratingUpdate = req.body.ratingUpdate; 
+
+  User.findById(id)
+      .then(tenant => {
+          if (!tenant) {
+              return res.status(404).send({
+                  message: `Cannot update Tenant with id=${id}. Tenant not found!`
+              });
+          }
+
+          let updatedRating = tenant.rating + ratingUpdate;
+
+          return User.findByIdAndUpdate(id, { rating: updatedRating }, { useFindAndModify: false });
+      })
+      .then(data => {
+          if (!data) {
+              return res.status(404).send({
+                  message: `Cannot update Tenant with id=${id}. Maybe Tenant was not found!`
+              });
+          }
+          res.status(200).send({ message: "Tenant rating was updated successfully.", status: 200});
+      })
+      .catch(err => {
+          console.error("Error updating Tenant:", err);
+          res.status(500).send({
+              message: "Error updating Tenant with id=" + id
+          });
+      });
+};
+
   
 
 // property tenants

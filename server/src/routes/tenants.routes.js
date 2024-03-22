@@ -20,12 +20,8 @@ router.get('/files/:tenantId', tenantController.findTenantFiles);
 // Update a task with id
 router.put('/update/:id', tenantController.update);
 
-// approve leave 
-router.put('/completed/:id', tenantController.completed);
 
-// disapprove leave
-router.put('/pending/:id', tenantController.pending);
-
+router.put('/update-rating/:id', tenantController.updateRating);
 
 // Retrieve a single task with id
 router.get('details/:id', tenantController.findOne);
