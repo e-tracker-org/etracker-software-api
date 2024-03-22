@@ -55,6 +55,17 @@ export async function getAllReceiptHandler(req: Request<{}, {}, ReceiptBody>, re
 
 export async function generateReceiptHandler(req: Request, res: Response, next: NextFunction) {
     const { category, dueDate, amount, description, recipients } = res.locals.transactionInfo;
+    // Format the due date
+    const formattedDueDate = new Date(dueDate).toLocaleString('en-US', {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: 'numeric',
+        minute: 'numeric',
+        second: 'numeric'
+    });
+
     // Create a new PDF document
     const doc = new PDFDocument();
 
@@ -62,12 +73,12 @@ export async function generateReceiptHandler(req: Request, res: Response, next: 
     res.setHeader('Content-Disposition', 'attachment; filename="receipt.pdf"');
     res.setHeader('Content-Type', 'application/pdf');
 
-    console.log('res.locals.transactionInfo', res.locals.transactionInfo)
     // Add content to the PDF
-    doc.fontSize(20).text(category+' Receipt Payment', { align: 'center' });
+    doc.fontSize(20).text(category + ' Receipt Payment', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(14).text(dueDate, { align: 'left' });
-    doc.text(amount, { align: 'left' });
+    doc.fontSize(14).text('Next payment due date is: ' + formattedDueDate, { align: 'left' });
+    doc.moveDown();
+    doc.text('Amount paid is: N '+amount, { align: 'left' });
     doc.moveDown();
     doc.text('Thank you for your payment!', { align: 'center' });
     doc.text(description, { align: 'center' });
