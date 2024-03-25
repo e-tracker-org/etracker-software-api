@@ -49,6 +49,23 @@ exports.updateUserAccountType = (req, res) => {
     });
 };
 
+// Retrieve all users from the database
+exports.findAllUsers = (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send({ message: 'Unauthorized request' });
+  }
+
+  User.find()
+    .then((users) => {
+      res.status(200).send(users);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: err.message || 'Some error occurred while retrieving users.',
+      });
+    });
+};
+
 exports.count = (req, res) => {
   if (!req.headers.authorization) {
     return res.status(401).send({ message: 'Unauthorized request' });

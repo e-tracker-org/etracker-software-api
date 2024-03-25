@@ -35,12 +35,12 @@ export const emailTokenTemplate = (user: User, otp: string) => {
 };
 
 export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantInfo: any) => {
-    const confirmationLink = `${CORS_ORIGIN}/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
+  const confirmationLink = `${CORS_ORIGIN}/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
   //   const confirmationLink = `${
   //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
-  
-    const html = `
+
+  const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
         <p>
         We are pleased to inform you that you have been assigned as a tenant for the property located at [${tenantInfo?.address}]. As a tenant,
@@ -53,15 +53,15 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
         E-tracka Team</p>
       `;
 
-    return html;
+  return html;
 };
 
 export const inviteTenantLinkTemplate = () => {
-    const inviteLink = `${CORS_ORIGIN}/auth/signup`;
+  const inviteLink = `${CORS_ORIGIN}/auth/signup`;
   //   const inviteLink = `${
   //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signup`;
-    const html = `
+  const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant</h4>,
         <p>
         We are excited to announce that we have partnered with eTracka, a cutting-edge property management
@@ -74,12 +74,12 @@ export const inviteTenantLinkTemplate = () => {
         E-tracka Team</p>
       `;
 
-    return html;
+  return html;
 };
 
 export const sendReceiptTemaplate = (receptDetail: any) => {
-    const { category, description} = receptDetail;
-    const html = `
+  const { category, description } = receptDetail;
+  const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant</h4>,
         <p>Thank you for your payment! Attached is the receipt.<br/><br/><br/>
         
@@ -88,11 +88,11 @@ export const sendReceiptTemaplate = (receptDetail: any) => {
         E-tracka Team</p>
       `;
 
-    return html;
+  return html;
 };
 
 export const sendNoticeMessageTemaplate = (mofifyMsg: string) => {
-    const html = `
+  const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant,</h4><br/>
         <p>${mofifyMsg}<br/><br/><br/>
         
@@ -101,6 +101,5 @@ export const sendNoticeMessageTemaplate = (mofifyMsg: string) => {
         E-tracka Team</p>
       `;
 
-    return html;
+  return html;
 };
-
