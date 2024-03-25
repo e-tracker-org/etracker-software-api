@@ -76,7 +76,7 @@ export async function generateReceiptHandler(req: Request, res: Response, next: 
     // Add content to the PDF
     doc.fontSize(20).text(category + ' Receipt Payment', { align: 'center' });
     doc.moveDown();
-    doc.fontSize(14).text('Next payment due date is: ' + formattedDueDate, { align: 'left' });
+    doc.fontSize(14).text('Payment date is: ' + formattedDueDate, { align: 'left' });
     doc.moveDown();
     doc.text('Amount paid is: N '+amount, { align: 'left' });
     doc.moveDown();

@@ -10,6 +10,6 @@ db.tenant = require("./tenant.model.js")(mongoose);
 db.user = require("./user.model.js")(mongoose);
 db.transaction = require("./transaction.model.js")(mongoose);
 db.files = require("./files.model.js")(mongoose);
-
+db.properties = require("./properties.model.js")(mongoose);
 
 module.exports = db;

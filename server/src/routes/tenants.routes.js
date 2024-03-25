@@ -20,7 +20,6 @@ router.get('/files/:tenantId', tenantController.findTenantFiles);
 // Update a task with id
 router.put('/update/:id', tenantController.update);
 
-
 router.put('/update-rating/:id', tenantController.updateRating);
 
 // Retrieve a single task with id
