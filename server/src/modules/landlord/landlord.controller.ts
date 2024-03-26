@@ -1,42 +1,43 @@
 import { NextFunction, Request, Response } from 'express';
-import {findAll, findUserById} from "../profile/profile.service";
-import {User} from "../auth/register/register.model";
-import {apiError, apiResponse} from "../../utils/response";
-import {RegisterUserBody} from "../auth/register/register.schema";
-import {findUserByEmail} from "../auth/register/register.service";
-import {sendEmail} from "../email-service";
+import { findAll, findUserById } from '../profile/profile.service';
+import { User } from '../auth/register/register.model';
+import { apiError, apiResponse } from '../../utils/response';
+import { RegisterUserBody } from '../auth/register/register.schema';
+import { findUserByEmail } from '../auth/register/register.service';
+import { sendEmail } from '../email-service';
 const { ObjectId } = require('mongodb');
 import {
   emailTenantPropertyConfirmationLinkTemplate,
-  inviteTenantLinkTemplate, sendNoticeMessageTemaplate, sendReceiptTemaplate
-} from "../../utils/email-templates";
+  inviteTenantLinkTemplate,
+  sendNoticeMessageTemaplate,
+  sendReceiptTemaplate,
+} from '../../utils/email-templates';
 
-import {isValid} from "../../utils/database";
-import {findById} from "../profile/profile.service";
-import {findById as findPropertyById} from "../property/property.service";
-import {PropertyStatus, Tenant} from "./landlord.model";
-import {findDistinctTenant, findTenantBySearchTerm, searchLandlordTenant} from "./landlord.service";
-import {findTransaction} from "../transaction/transaction.service";
-import {StatusCodes} from "http-status-codes";
-import {ReceiptBody} from "../receipt/receipt.schema";
-import {sendReceiptEmail} from "../receipt/receipt.controller";
-
+import { isValid } from '../../utils/database';
+import { findById } from '../profile/profile.service';
+import { findById as findPropertyById } from '../property/property.service';
+import { PropertyStatus, Tenant } from './landlord.model';
+import { findDistinctTenant, findTenantBySearchTerm, searchLandlordTenant } from './landlord.service';
+import { findTransaction } from '../transaction/transaction.service';
+import { StatusCodes } from 'http-status-codes';
+import { ReceiptBody } from '../receipt/receipt.schema';
+import { sendReceiptEmail } from '../receipt/receipt.controller';
 
 // New DB insert mechanism
-const db = require("../../models");
+const db = require('../../models');
 const NewTenant = db.tenant;
 
 export async function findAllTenantHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const users = await findAll();
     let userTenants = [];
-    if(users.length > 0) {
+    if (users.length > 0) {
       for (const user: User of users) {
         const accountTypes: number[] = user.accountTypes || [];
-        if(accountTypes.length > 0) {
+        if (accountTypes.length > 0) {
           for (const accountType of accountTypes) {
-            if(accountType === 1) {
-              userTenants.push(user)
+            if (accountType === 1) {
+              userTenants.push(user);
             }
           }
         } else return apiResponse(res, 'No Tenant found', []);
@@ -53,20 +54,18 @@ export async function searchTenantHandler(req: Request, res: Response, next: Nex
     const searchTerm = req.query.q?.toString().trim() || '';
 
     const tenants = await findTenantBySearchTerm(searchTerm);
-    if(!tenants) return apiResponse(res, 'No Tenant found', []);
+    if (!tenants) return apiResponse(res, 'No Tenant found', []);
     return apiResponse(res, 'Tenant list fetched successfully', tenants);
-
   } catch (err) {
     next(err);
   }
 }
 
 export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, res: Response, next: NextFunction) {
-  const {email} = res.locals.user; // Landlord email address
-  if(!req.body.length) throw 'Tenant details is required';
+  const { email } = res.locals.user; // Landlord email address
+  if (!req.body.length) throw 'Tenant details is required';
   for (const reqDetails of req.body) {
-
-    const {email: tenantEmail, propertyId } = reqDetails;
+    const { email: tenantEmail, propertyId } = reqDetails;
 
     // //Validate request body and params
     if (!propertyId) throw 'Property id is required';
@@ -88,22 +87,20 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
       // confirm the user is a tenant
       // if (!tenant.accountTypes.includes(1)) throw 'User not a Tenant'
 
-
       //Confirm property exist
       const property = await getProperty(propertyId);
       if (!property) throw 'Property not found';
 
       //Confirm the property access is not from an unknown landlord
-      if(!(new ObjectId(user.id)).equals(property.current_owner)) throw 'Unauthorized landlord property access'
+      if (!new ObjectId(user.id).equals(property.current_owner)) throw 'Unauthorized landlord property access';
 
       if (property) {
         //Check  tenant exist under property
-        const tenants = property.tenant.filter(tenantInfo =>  tenantInfo?.tenantId === tenant?.id
-        );
+        const tenants = property.tenant.filter((tenantInfo) => tenantInfo?.tenantId === tenant?.id);
 
         // Add tenant to property if not exist
         if (!tenants.length) {
-          property.tenant = [...property.tenant, {tenantId: tenant?.id, status: PropertyStatus.INCOMPLETE}]
+          property.tenant = [...property.tenant, { tenantId: tenant?.id, status: PropertyStatus.INCOMPLETE }];
           Object.assign(property, property);
           const data = await property.save();
 
@@ -113,7 +110,7 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
             landlordId: property.current_owner,
             status: PropertyStatus.INCOMPLETE,
           });
-          
+
           // Check if the tenant already exists
           NewTenant.findOne({
             userId: newTenant.userId,
@@ -127,23 +124,24 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
                 // Handle the case where the tenant already exists
               } else {
                 // Save the tenant in the database if it doesn't already exist
-                newTenant.save()
+                newTenant
+                  .save()
                   .then((tenantData: any) => {
                     // Handle successful save
                     console.log('Tenant saved successfullys:', tenantData);
                   })
-                  .catch((err: { message: any; })  => {
+                  .catch((err: { message: any }) => {
                     // Handle save error
                     console.error('Error saving tenant:', err.message);
                   });
               }
             })
-            .catch((err: { message: any; }) => {
+            .catch((err: { message: any }) => {
               // Handle query error
               console.error('Error checking for existing tenant:', err.message);
             });
-          }
-         
+        }
+
         // Prepare email info
         tenant.address = property.address;
         tenant.tenantId = tenant?.id;
@@ -153,56 +151,58 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
         await sendEmaiLink(user, tenant);
         return apiResponse(res, 'Property Confirmation email sent.', '', 201);
       } else {
-        throw "Property not found";
+        throw 'Property not found';
       }
-
     } catch (err) {
       next(err);
     }
   }
 }
 
-export async function confirmTenantPropertyHandler(req: Request<{}, {}, RegisterUserBody>, res: Response, next: NextFunction) {
-  const { tenantId, propertyId} = req.body;
+export async function confirmTenantPropertyHandler(
+  req: Request<{}, {}, RegisterUserBody>,
+  res: Response,
+  next: NextFunction
+) {
+  const { tenantId, propertyId } = req.body;
   const { email } = res.locals.user;
   try {
     //Confirm logged in user exist
     const user = await findUserByEmail(email);
-    if(!user) throw 'User not found';
-    console.log('UserTenant>>>', user)
+    if (!user) throw 'User not found';
+    console.log('UserTenant>>>', user);
     // confirm the user is a tenant (1 represent tenant in the db)
-    if(!user.accountTypes.includes(1)) throw 'User not a Tenant'
+    if (!user.accountTypes.includes(1)) throw 'User not a Tenant';
 
     //Validate request params
-    if(!tenantId) throw 'Tenant id is required';
-    if(!propertyId) throw 'Property id is required';
+    if (!tenantId) throw 'Tenant id is required';
+    if (!propertyId) throw 'Property id is required';
 
     //Validate tenantId is the logged in user
-    if(user.id !== tenantId) throw 'Invalid tenant id'
+    if (user.id !== tenantId) throw 'Invalid tenant id';
 
     //Confirm property exist
     const property = await getProperty(propertyId);
-    if(!property) throw 'Property not found';
+    if (!property) throw 'Property not found';
 
     // //Confirm the property access is not from an unknown landlord
     // if(!(new ObjectId(user.id)).equals(property.current_owner)) throw 'Unauthorized landlord property access'
 
-    if(property) {
-
+    if (property) {
       //Validate tenant  exist
-      const propertyTenant = property.tenant.find(tenant => tenant.tenantId === tenantId);
-      if(!propertyTenant) throw 'This tenant does not exist under this property';
+      const propertyTenant = property.tenant.find((tenant) => tenant.tenantId === tenantId);
+      if (!propertyTenant) throw 'This tenant does not exist under this property';
 
       // Confirm status is not COMPLETE
-      if(propertyTenant.status === PropertyStatus.COMPLETE) throw 'Tenant already added to this property';
+      if (propertyTenant.status === PropertyStatus.COMPLETE) throw 'Tenant already added to this property';
 
       // Update tenant status to complete
-      propertyTenant.status = PropertyStatus.COMPLETE
+      propertyTenant.status = PropertyStatus.COMPLETE;
       propertyTenant.isActive = true;
 
       //Confirm tenant to property
-      const index = property.tenant.findIndex(tenant => tenant.tenantId === tenantId);
-      if(!(index !== -1)) throw `Tenant with the provided ${tenantId} does not exist `
+      const index = property.tenant.findIndex((tenant) => tenant.tenantId === tenantId);
+      if (!(index !== -1)) throw `Tenant with the provided ${tenantId} does not exist `;
       if (index !== -1) property.tenant[index] = propertyTenant;
 
       Object.assign(property, property);
@@ -210,72 +210,78 @@ export async function confirmTenantPropertyHandler(req: Request<{}, {}, Register
 
       return apiResponse(res, `Tenant successfully added to property ${property.name}`, data, 201);
     } else {
-      throw "Property not found";
+      throw 'Property not found';
     }
   } catch (err) {
     next(err);
   }
 }
 
-export async function findLandlordTenantHandler(req: Request<{}, {}, RegisterUserBody>, res: Response, next: NextFunction) {
+export async function findLandlordTenantHandler(
+  req: Request<{}, {}, RegisterUserBody>,
+  res: Response,
+  next: NextFunction
+) {
   const { email } = res.locals.user;
   try {
     //Confirm logged in user exist
     const user = await findUserByEmail(email);
-    if(!user) throw 'User not found';
+    if (!user) throw 'User not found';
 
     // confirm the user is a landlord (2 represent landlord in the db)
-    if(!user.accountTypes.includes(2)) throw 'User not a Landlord'
-      // Fetch all tenant IDs from the properties collection
-      const nonEmptyTenantIds = await findDistinctTenant('tenant', user.id);
+    if (!user.accountTypes.includes(2)) throw 'User not a Landlord';
+    // Fetch all tenant IDs from the properties collection
+    const nonEmptyTenantIds = await findDistinctTenant('tenant', user.id);
 
     // Validate if any tenant exist
-      if(!nonEmptyTenantIds.length) throw 'No tenant found';
+    if (!nonEmptyTenantIds.length) throw 'No tenant found';
 
     // Filter out empty tenant IDs
     // const nonEmptyTenantIds = tenants.filter((tenant) => Array.isArray(tenant) && tenant.length > 0);
-    const tenantProfiles = []
+    const tenantProfiles = [];
 
     // Find profiles associated with each non-empty tenant ID
     for (const tenant: Tenant of nonEmptyTenantIds) {
       //tenant.isActive confirms the tenant is active under this tenant
-      if(tenant.isActive) {
+      if (tenant.isActive) {
         const profile = await findById(tenant.tenantId);
         // console.log(`Profiles for tenant ID ${tenant.tenantId}:`, profiles);
-        if(profile) {
-          profile.propertyApprovalStatus = tenant.status
-          tenantProfiles.push(profile)
+        if (profile) {
+          profile.propertyApprovalStatus = tenant.status;
+          tenantProfiles.push(profile);
         }
       }
     }
-      return apiResponse(res, `Tenants successfully fetched`, tenantProfiles, 201);
+    return apiResponse(res, `Tenants successfully fetched`, tenantProfiles, 201);
   } catch (err) {
     next(err);
   }
 }
 
-export async function searchLandlordTenantHandler(req: Request<{}, {}, RegisterUserBody>, res: Response, next: NextFunction) {
+export async function searchLandlordTenantHandler(
+  req: Request<{}, {}, RegisterUserBody>,
+  res: Response,
+  next: NextFunction
+) {
   const { email } = res.locals.user;
   const propertyId = req.query.q?.toString().trim() || '';
   const searchTerm = req.query.q1?.toString().trim() || '';
 
-
   try {
+    //Confirm logged in user exist
+    const user = await findUserByEmail(email);
+    if (!user) throw 'User not found';
 
-  //Confirm logged in user exist
-  const user = await findUserByEmail(email);
-  if(!user) throw 'User not found';
-
-  // confirm the user is a landlord (2 represent landlord in the db)
-  if(!user.accountTypes.includes(2)) throw 'User not a Landlord'
-  if(propertyId) {
-    //Confirm this landlord user owns the property he wants to search tenant
-    const property = await findPropertyById(propertyId);
-    if(!propertyId) throw 'Property not found';
-    //Confirm the property access is not from an unknown landlord
-    if(!(new ObjectId(user.id)).equals(property.current_owner)) throw 'Unauthorized landlord property access'
-  }
-    const tenants =  await searchLandlordTenant({ propertyId, searchTerm, userId: user.id});
+    // confirm the user is a landlord (2 represent landlord in the db)
+    if (!user.accountTypes.includes(2)) throw 'User not a Landlord';
+    if (propertyId) {
+      //Confirm this landlord user owns the property he wants to search tenant
+      const property = await findPropertyById(propertyId);
+      if (!propertyId) throw 'Property not found';
+      //Confirm the property access is not from an unknown landlord
+      if (!new ObjectId(user.id).equals(property.current_owner)) throw 'Unauthorized landlord property access';
+    }
+    const tenants = await searchLandlordTenant({ propertyId, searchTerm, userId: user.id });
 
     return apiResponse(res, `Tenants successfully fetched`, tenants, 201);
   } catch (err) {
@@ -283,35 +289,33 @@ export async function searchLandlordTenantHandler(req: Request<{}, {}, RegisterU
   }
 }
 
-export async function inviteTenantHandler(req: Request<{}, {}, {email: string}>, res: Response, next: NextFunction) {
+export async function inviteTenantHandler(req: Request<{}, {}, { email: string }>, res: Response, next: NextFunction) {
+  const { email } = res.locals.user; // Landlord email address
+  try {
+    //Confirm the login user email exist
+    const user = await findUserByEmail(email);
+    if (!user) throw 'Landlord user not found';
+    if (!req.body.email) throw 'Email is required';
 
-    const {email} = res.locals.user; // Landlord email address
-    try {
-      //Confirm the login user email exist
-      const user = await findUserByEmail(email);
-      if (!user) throw 'Landlord user not found';
-      if (!req.body.email) throw 'Email is required';
+    //Confirm if invite email already exist
+    const emailExist = await findUserByEmail(req.body.email);
+    if (emailExist) throw 'User already exist on this platform';
 
-      //Confirm if invite email already exist
-      const emailExist = await findUserByEmail(req.body.email);
-      if(emailExist) throw 'User already exist on this platform';
+    // confirm the user is a landlord
+    if (!user.accountTypes.includes(2)) throw 'User not a landlord';
 
-      // confirm the user is a landlord
-      if (!user.accountTypes.includes(2)) throw 'User not a landlord'
-
-      //Send invite tenant email link
-      await sendInviteTenantEmailLink(req.body.email);
-      return apiResponse(res, `Email invitation sent to ${req.body.email}`, '', 201);
-    } catch (err) {
-        next(err);
-    }
-
+    //Send invite tenant email link
+    await sendInviteTenantEmailLink(req.body.email);
+    return apiResponse(res, `Email invitation sent to ${req.body.email}`, '', 201);
+  } catch (err) {
+    next(err);
+  }
 }
-
 
 export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: Response, next: NextFunction) {
   const { email } = res.locals.user;
   const { propertyId, tenantId } = req.body;
+  console.log(propertyId, 'propertyId');
 
   if (!propertyId) throw 'Property id is required';
   if (!tenantId) throw 'Tenant id is required';
@@ -332,22 +336,31 @@ export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: R
 
     if (!tenant.accountTypes.includes(1)) apiError(res, `Kyc not completed`, StatusCodes.BAD_REQUEST);
 
-    const propertyTenant = property.tenant.find(propertyTenant => propertyTenant.tenantId === tenantId);
-    if(!propertyTenant)  apiError(res, `Tenant with the provided ${tenantId} does not exist under this landlord's property `, StatusCodes.NOT_FOUND);
-    if(!propertyTenant.isActive) {
+    const propertyTenant = property.tenant.find((propertyTenant) => propertyTenant.tenantId === tenantId);
+    if (!propertyTenant)
+      apiError(
+        res,
+        `Tenant with the provided ${tenantId} does not exist under this landlord's property `,
+        StatusCodes.NOT_FOUND
+      );
+    if (!propertyTenant.isActive) {
       // Update tenant isActive to false
       propertyTenant.isActive = false;
       //Confirm tenant to property
-      const index = property.tenant.findIndex(tenant => tenant.tenantId === tenantId);
+      const index = property.tenant.findIndex((tenant) => tenant.tenantId === tenantId);
       if (!(index !== -1)) apiError(res, `Tenant with the provided ${tenantId} does not exist `, StatusCodes.NOT_FOUND);
       if (index !== -1) property.tenant[index] = propertyTenant;
 
       Object.assign(property, property);
       const data = await property.save();
 
-      return apiResponse(res, `Tenant agreement for ${property.name} property successfully ended`, null,  201);
+      return apiResponse(res, `Tenant agreement for ${property.name} property successfully ended`, null, 201);
     }
-    return apiError(res, `Tenant agreement under ${property.name} property is not active`, StatusCodes.EXPECTATION_FAILED);
+    return apiError(
+      res,
+      `Tenant agreement under ${property.name} property is not active`,
+      StatusCodes.EXPECTATION_FAILED
+    );
   } catch (err) {
     next(err);
   }
@@ -366,31 +379,46 @@ export async function notifyTenantHandler(req: Request<{}, {}, ReceiptBody>, res
     if (!user) return apiError(res, `User not found`, StatusCodes.NOT_FOUND);
 
     // confirm the user is either  landlord
-    if (!user.accountTypes.includes(2)) return apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);;
+    if (!user.accountTypes.includes(2)) return apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);
 
-
+    const firstname = user.firstname;
+    const lastname = user.lastname;
     for (const tenantId of tenantIds) {
       const tenant = await findById(tenantId);
-      if(tenant && tenant.accountTypes.includes(1)) {
-        await sendNotifyTenantEmailLink(tenant.email, notifyMsg);
+      if (tenant && tenant.accountTypes.includes(1)) {
+        await sendNotifyTenantEmailLink(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
       }
     }
-    return apiResponse(res, `Email notification message successfully sent`, null,  201);
-  }catch(err) {
-    next(err)
+    return apiResponse(res, `Email notification message successfully sent`, null, 201);
+  } catch (err) {
+    next(err);
   }
 }
 
-
-
 export const sendInviteTenantEmailLink = async (email: string) => {
-  return await sendEmail(email, "Join e-Tracka Platform - Your Smart Property Management Solution", inviteTenantLinkTemplate());
+  return await sendEmail(
+    email,
+    'Join e-Tracka Platform - Your Smart Property Management Solution',
+    inviteTenantLinkTemplate()
+  );
 };
-export const sendNotifyTenantEmailLink = async (email: string, notifyMsg: string) => {
-  return await sendEmail(email, "Landlord Notice Message", sendNoticeMessageTemaplate(notifyMsg));
+export const sendNotifyTenantEmailLink = async (
+  email: string,
+  notifyMsg: string,
+  firstName: string,
+  lastName: string,
+  name: string
+) => {
+  const subject = `Message From ${firstName} ${lastName}`; // Subject with landlord's first name and last name
+  return await sendEmail(email, subject, sendNoticeMessageTemaplate(notifyMsg, name));
 };
+
 export const sendEmaiLink = async (user: any, tenant: any) => {
-  return await sendEmail(tenant.email, "Confirm Your Property Allocation", emailTenantPropertyConfirmationLinkTemplate(user, tenant));
+  return await sendEmail(
+    tenant.email,
+    'Confirm Your Property Allocation',
+    emailTenantPropertyConfirmationLinkTemplate(user, tenant)
+  );
 };
 
 async function getProperty(propertyId: string) {

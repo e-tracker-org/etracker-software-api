@@ -91,12 +91,12 @@ export const sendReceiptTemaplate = (receptDetail: any) => {
   return html;
 };
 
-export const sendNoticeMessageTemaplate = (mofifyMsg: string) => {
+export const sendNoticeMessageTemaplate = (mofifyMsg: string, name: string) => {
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant,</h4><br/>
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4><br/>
         <p>${mofifyMsg}<br/><br/><br/>
         
-        If you did not register with us, please ignore this email.<br/><br/><br/></p>
+        If you did not register with us, please ignore this email.<br/><br/></p>
        <p>Thank you, <br/>
         E-tracka Team</p>
       `;
