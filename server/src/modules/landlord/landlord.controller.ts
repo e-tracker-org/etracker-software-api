@@ -315,17 +315,16 @@ export async function inviteTenantHandler(req: Request<{}, {}, { email: string }
 export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: Response, next: NextFunction) {
   const { email } = res.locals.user;
   const { propertyId, tenantId } = req.body;
-  console.log(propertyId, 'propertyId');
 
   if (!propertyId) throw 'Property id is required';
   if (!tenantId) throw 'Tenant id is required';
 
   try {
-    //Confirm logged in user exist
+    // Confirm logged in user exists
     const user = await findUserByEmail(email);
     if (!user) throw apiError(res, `User not found`, StatusCodes.NOT_FOUND);
 
-    // confirm the user is either  landlord
+    // Confirm the user is a landlord
     if (!user.accountTypes.includes(2)) apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);
 
     const tenant = await findById(tenantId);
@@ -336,26 +335,24 @@ export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: R
 
     if (!tenant.accountTypes.includes(1)) apiError(res, `Kyc not completed`, StatusCodes.BAD_REQUEST);
 
-    const propertyTenant = property.tenant.find((propertyTenant) => propertyTenant.tenantId === tenantId);
-    if (!propertyTenant)
+    const propertyTenantIndex = property.tenant.findIndex((propertyTenant) => propertyTenant.tenantId === tenantId);
+    if (propertyTenantIndex === -1) {
       apiError(
         res,
         `Tenant with the provided ${tenantId} does not exist under this landlord's property `,
         StatusCodes.NOT_FOUND
       );
-    if (!propertyTenant.isActive) {
-      // Update tenant isActive to false
-      propertyTenant.isActive = false;
-      //Confirm tenant to property
-      const index = property.tenant.findIndex((tenant) => tenant.tenantId === tenantId);
-      if (!(index !== -1)) apiError(res, `Tenant with the provided ${tenantId} does not exist `, StatusCodes.NOT_FOUND);
-      if (index !== -1) property.tenant[index] = propertyTenant;
+    }
 
-      Object.assign(property, property);
+    const propertyTenant = property.tenant[propertyTenantIndex];
+    if (!propertyTenant.isActive) {
+      // Remove tenant from property's tenant list
+      property.tenant.splice(propertyTenantIndex, 1);
       const data = await property.save();
 
       return apiResponse(res, `Tenant agreement for ${property.name} property successfully ended`, null, 201);
     }
+
     return apiError(
       res,
       `Tenant agreement under ${property.name} property is not active`,
