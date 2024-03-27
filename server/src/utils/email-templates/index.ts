@@ -77,7 +77,7 @@ export const inviteTenantLinkTemplate = () => {
   return html;
 };
 
-export const sendReceiptTemaplate = (receptDetail: any) => {
+export const sendReceiptTemaplate = (name: string, receptDetail: any) => {
   const { category, description } = receptDetail;
   const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant</h4>,
@@ -91,12 +91,25 @@ export const sendReceiptTemaplate = (receptDetail: any) => {
   return html;
 };
 
-export const sendNoticeMessageTemaplate = (mofifyMsg: string) => {
+export const sendNoticeMessageTemaplate = (mofifyMsg: string, name: string) => {
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant,</h4><br/>
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4><br/>
         <p>${mofifyMsg}<br/><br/><br/>
         
-        If you did not register with us, please ignore this email.<br/><br/><br/></p>
+        If you did not register with us, please ignore this email.<br/><br/></p>
+       <p>Thank you, <br/>
+        E-tracka Team</p>
+      `;
+
+  return html;
+};
+
+export const sendEndAgreementTemaplate = (property: string, name: string) => {
+  const html = `
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4><br/>
+        <p>>We regret to inform you that your tenancy agreement for the property at ${property} has come to an end.<br/><br/><br/>
+        
+        If you did not register with us, please ignore this email.<br/><br/></p>
        <p>Thank you, <br/>
         E-tracka Team</p>
       `;

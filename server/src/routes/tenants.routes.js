@@ -1,5 +1,5 @@
-const express = require('express')
-const router = express.Router()
+const express = require('express');
+const router = express.Router();
 const tenantController = require('../controller/tenant.controller');
 
 // Retrieve all tenants
@@ -28,4 +28,6 @@ router.get('details/:id', tenantController.findOne);
 // Delete a task with id
 router.delete('/delete/:id', tenantController.delete);
 
-module.exports = router
+router.put('/completed/:id', tenantController.completed);
+
+module.exports = router;
