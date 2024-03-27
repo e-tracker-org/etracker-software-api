@@ -11,6 +11,7 @@ import {
   inviteTenantLinkTemplate,
   sendNoticeMessageTemaplate,
   sendReceiptTemaplate,
+  sendEndAgreementTemaplate,
 } from '../../utils/email-templates';
 
 import { isValid } from '../../utils/database';
@@ -352,6 +353,7 @@ export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: R
 
       return apiResponse(res, `Tenant agreement for ${property.name} property successfully ended`, null, 201);
     }
+    await sendEndAgreementEmail(tenant?.email, property.name, tenant?.firstname);
 
     return apiError(
       res,
@@ -383,7 +385,7 @@ export async function notifyTenantHandler(req: Request<{}, {}, ReceiptBody>, res
     for (const tenantId of tenantIds) {
       const tenant = await findById(tenantId);
       if (tenant && tenant.accountTypes.includes(1)) {
-        await sendNotifyTenantEmailLink(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
+        await sendNotifyTenantEmail(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
       }
     }
     return apiResponse(res, `Email notification message successfully sent`, null, 201);
@@ -399,7 +401,7 @@ export const sendInviteTenantEmailLink = async (email: string) => {
     inviteTenantLinkTemplate()
   );
 };
-export const sendNotifyTenantEmailLink = async (
+export const sendNotifyTenantEmail = async (
   email: string,
   notifyMsg: string,
   firstName: string,
@@ -408,6 +410,10 @@ export const sendNotifyTenantEmailLink = async (
 ) => {
   const subject = `Message From ${firstName} ${lastName}`; // Subject with landlord's first name and last name
   return await sendEmail(email, subject, sendNoticeMessageTemaplate(notifyMsg, name));
+};
+export const sendEndAgreementEmail = async (email: string, property: string, name: string) => {
+  const subject = `Tenancy agreement has ended`;
+  return await sendEmail(email, subject, sendEndAgreementTemaplate(property, name));
 };
 
 export const sendEmaiLink = async (user: any, tenant: any) => {
