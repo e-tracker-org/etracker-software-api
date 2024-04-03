@@ -80,12 +80,16 @@ export const inviteTenantLinkTemplate = () => {
 export const sendReceiptTemaplate = (name: string, receptDetail: any) => {
   const { category, description } = receptDetail;
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear Tenant</h4>,
-        <p>Thank you for your payment! Attached is the receipt.<br/><br/><br/>
-        
-        If you did not register with us, please ignore this email.<br/><br/><br/></p>
-       <p>Thank you, <br/>
-        E-tracka Team</p>
+  <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4>
+  <p>We would like to express our gratitude for your recent payment! Attached to this email, you will find your receipt.<br/><br/></p>
+  
+  <p>If you have any questions or concerns regarding your payment or the attached receipt, please feel free to reach out to us.<br/><br/></p>
+  
+  <p>Thank you for choosing E-tracka for your property management needs.<br/><br/></p>
+  
+  <p>Sincerely,<br/>
+  The E-tracka Team</p>
+  
       `;
 
   return html;
@@ -107,7 +111,13 @@ export const sendNoticeMessageTemaplate = (mofifyMsg: string, name: string) => {
 export const sendEndAgreementTemaplate = (property: string, name: string) => {
   const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4><br/>
-        <p>>We regret to inform you that your tenancy agreement for the property at ${property} has come to an end.<br/><br/><br/>
+        <p>We regret to inform you that your tenancy agreement for the property at ${property} has come to an end.</p>
+
+        <p>As per our records, your tenancy agreement has been terminated. Please make sure to vacate the premises as soon as possible and return all keys and access cards to the property management.</p>
+    
+        <p>If you have any questions or concerns regarding the termination of your tenancy agreement, please feel free to contact us at [Property Management Contact Information].</p>
+    
+        <p>Thank you for your cooperation during your stay with us.</p><br/><br/><br/>
         
         If you did not register with us, please ignore this email.<br/><br/></p>
        <p>Thank you, <br/>

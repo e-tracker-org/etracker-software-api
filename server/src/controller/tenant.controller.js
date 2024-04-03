@@ -3,6 +3,9 @@ const { PropertyStatus } = require('../modules/property/property.model');
 const Tenant = db.tenant;
 const Transaction = db.transaction;
 const Files = db.files;
+const { sendEmail } = require('../modules/email-service');
+// import sendEndAgreementTemaplate from '../utils/email-templates';
+const { sendEndAgreementTemaplate } = require('../utils/email-templates');
 
 const User = db.user;
 
@@ -364,6 +367,7 @@ exports.delete = (req, res) => {
     return res.status(401).send({ message: 'Unauthorized request' });
   }
   const id = req.params.id;
+  const { email, property, name } = req.body;
 
   Tenant.findByIdAndRemove(id, { useFindAndModify: false })
     .then((data) => {
@@ -375,6 +379,7 @@ exports.delete = (req, res) => {
         res.send({
           message: 'Tenant was deleted successfully!',
         });
+        sendEndAgreementEmail(email, property, name);
       }
     })
     .catch((err) => {
@@ -415,4 +420,8 @@ exports.count = (req, res) => {
         message: err.message || 'Some error occurred while retrieving.',
       });
     });
+};
+const sendEndAgreementEmail = async (email, property, name) => {
+  const subject = `Tenancy agreement has ended`;
+  return await sendEmail(email, subject, sendEndAgreementTemaplate(property, name));
 };
