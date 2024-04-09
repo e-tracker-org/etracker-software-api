@@ -1,6 +1,5 @@
 import { array, number, object, string, TypeOf } from 'zod';
 
-
 export const registerUserSchema = {
   body: object({
     firstname: string({
@@ -15,7 +14,7 @@ export const registerUserSchema = {
     phone: string({
       required_error: 'phone number is required',
     }),
-    propertyId: string(),
+    propertyId: string().optional(),
     password: string({
       required_error: 'password is required',
     })
