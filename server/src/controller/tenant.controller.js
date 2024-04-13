@@ -6,7 +6,7 @@ const Files = db.files;
 const { sendEmail } = require('../modules/email-service');
 // import sendEndAgreementTemaplate from '../utils/email-templates';
 const { sendEndAgreementTemaplate } = require('../utils/email-templates');
-
+const { findById } = require('../modules/property/property.service');
 const User = db.user;
 
 // Create and Save a new Tenant
@@ -367,31 +367,64 @@ exports.close = (req, res) => {
 };
 
 // Delete a Tenant with the specified id in the request
-exports.delete = (req, res) => {
-  if (!req.headers.authorization) {
-    return res.status(401).send({ message: 'Unauthorized request' });
-  }
-  const id = req.params.id;
-  const { email, property, name } = req.body;
+exports.delete = async (req, res) => {
+  let id;
+  try {
+    if (!req.headers.authorization) {
+      return res.status(401).send({ message: 'Unauthorized request' });
+    }
+    id = req.params.id;
+    const { email, property, name, tenantId } = req.body;
 
-  Tenant.findByIdAndRemove(id, { useFindAndModify: false })
-    .then((data) => {
-      if (!data) {
-        res.status(404).send({
-          message: `Cannot delete Tenant with id=${id}. Maybe Tenant was not found!`,
-        });
-      } else {
-        res.send({
-          message: 'Tenant was deleted successfully!',
-        });
-        sendEndAgreementEmail(email, property, name);
-      }
-    })
-    .catch((err) => {
-      res.status(500).send({
-        message: 'Could not delete Tenant with id=' + id,
+    // Find the tenant document by ID and remove it
+    const deletedTenant = await Tenant.findByIdAndRemove(id, { useFindAndModify: false });
+
+    if (!deletedTenant) {
+      return res.status(404).send({
+        message: `Cannot delete Tenant with id=${id}. Maybe Tenant was not found!`,
       });
+    }
+
+    // Retrieve the property document associated with the deleted tenant
+    const propertyData = await findById(property.id);
+
+    console.log(propertyData, 'propertyData');
+
+    console.log(id, 'id');
+    // Find the index of the tenant in the property's tenant list
+    const propertyTenantIndex = propertyData.tenant.findIndex((propertyTenant) => propertyTenant.tenantId === tenantId);
+    console.log(propertyTenantIndex, 'propertyTenantIndex');
+
+    if (propertyTenantIndex === -1) {
+      return res.status(404).send({
+        message: `Tenant with the provided id=${tenantId} does not exist under this landlord's property `,
+      });
+    }
+
+    const propertyTenant = propertyData.tenant[propertyTenantIndex];
+
+    if (propertyTenant) {
+      // Remove the tenant from the property's tenant list
+      propertyData.tenant.splice(propertyTenantIndex, 1);
+
+      // Save the updated property document
+      await propertyData.save();
+
+      res.send({
+        message: 'Tenant was deleted successfully!',
+      });
+      sendEndAgreementEmail(email, property, name);
+    } else {
+      res.status(400).send({
+        message: 'Cannot delete active tenant. Please deactivate the tenant first.',
+      });
+    }
+  } catch (error) {
+    console.error('Error deleting tenant:', error);
+    res.status(500).send({
+      message: 'Could not delete Tenant with id=' + id,
     });
+  }
 };
 
 // Delete all  from the database.

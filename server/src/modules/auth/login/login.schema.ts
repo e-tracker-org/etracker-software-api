@@ -10,6 +10,7 @@ export const loginSchema = {
     })
       .min(6, 'password must be at least 6 characters')
       .max(64, 'password must not be longer than 64 charcters'),
+    propertyId: string().optional(),
   }),
 };
 

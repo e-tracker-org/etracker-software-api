@@ -108,14 +108,14 @@ export const sendNoticeMessageTemaplate = (mofifyMsg: string, name: string) => {
   return html;
 };
 
-export const sendEndAgreementTemaplate = (property: string, name: string) => {
+export const sendEndAgreementTemaplate = (property: any, name: string) => {
   const html = `
         <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${name},</h4><br/>
-        <p>We regret to inform you that your tenancy agreement for the property at ${property} has come to an end.</p>
+        <p>We regret to inform you that your tenancy agreement for the property at ${property.address} has come to an end.</p>
 
         <p>As per our records, your tenancy agreement has been terminated. Please make sure to vacate the premises as soon as possible and return all keys and access cards to the property management.</p>
     
-        <p>If you have any questions or concerns regarding the termination of your tenancy agreement, please feel free to contact us at [Property Management Contact Information].</p>
+        <p>If you have any questions or concerns regarding the termination of your tenancy agreement, please feel free to contact us at etracka.tech@gmail.com .</p>
     
         <p>Thank you for your cooperation during your stay with us.</p><br/><br/><br/>
         
