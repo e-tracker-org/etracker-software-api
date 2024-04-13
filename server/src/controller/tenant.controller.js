@@ -86,6 +86,8 @@ exports.findAll = (req, res) => {
     .then((tenantData) => {
       const userIds = tenantData.map((tenant) => tenant.userId);
 
+      console.log('userIds', userIds);
+
       return User.find({ userId: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
@@ -188,16 +190,19 @@ exports.landlordTenant = (req, res) => {
 
   Tenant.find({ landlordId: req.params.landlordId })
     .then((tenantData) => {
-      console.log('Fetched Data:', tenantData);
+      
 
       if (tenantData.length === 0) {
         return res.status(404).send({ message: 'No data found for the specified landlordId' });
       }
       const userIds = tenantData.map((tenant) => tenant.userId);
 
+
       return User.find({ userId: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
+
+      console.log('Fetched Data:', user);
 
           return {
             tenantData: tenant,
