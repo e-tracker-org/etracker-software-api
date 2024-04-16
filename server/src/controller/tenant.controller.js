@@ -5,7 +5,7 @@ const Transaction = db.transaction;
 const Files = db.files;
 const { sendEmail } = require('../modules/email-service');
 // import sendEndAgreementTemaplate from '../utils/email-templates';
-const { sendEndAgreementTemaplate } = require('../utils/email-templates');
+const { sendEndAgreementTemaplate, inviteTenantLinkTemplate } = require('../utils/email-templates');
 const { findById } = require('../modules/property/property.service');
 const User = db.user;
 
@@ -454,6 +454,22 @@ exports.count = (req, res) => {
       });
     });
 };
+
+exports.inviteTenant = async (req, res) => {
+  const { propertyId, email, propertyName } = req.body;
+
+  if (propertyId && email) {
+    await sendTenantInvite(propertyId, email, propertyName);
+    res.status(200).json({ message: 'Tenant invited successfully' });
+  } else {
+    res.status(400).json({ message: 'Missing propertyId or email in request' });
+  }
+};
+
+export const sendTenantInvite = async (propertyId, email, propertyName) => {
+  return await sendEmail(email, `Invitation to Join ${propertyName} as a Tenant`, inviteTenantLinkTemplate(propertyId));
+};
+
 const sendEndAgreementEmail = async (email, property, name) => {
   const subject = `Tenancy agreement has ended`;
   return await sendEmail(email, subject, sendEndAgreementTemaplate(property, name));

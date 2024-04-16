@@ -56,8 +56,8 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
   return html;
 };
 
-export const inviteTenantLinkTemplate = () => {
-  const inviteLink = `${CORS_ORIGIN}/auth/signup`;
+export const inviteTenantLinkTemplate = (propertyId: string) => {
+  const inviteLink = `${CORS_ORIGIN}/auth/signup?propertyId=${propertyId}`;
   //   const inviteLink = `${
   //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signup`;
@@ -69,7 +69,6 @@ export const inviteTenantLinkTemplate = () => {
         To get started, simply click on the link below to register and set up your eTracka account:<br/>
         
          <a href="${inviteLink}">${inviteLink}</a><br/> <br/><br/>
-        If you did not register with us, please ignore this email.<br/><br/><br/></p>
        <p>Thank you, <br/>
         E-tracka Team</p>
       `;

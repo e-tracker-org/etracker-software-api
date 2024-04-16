@@ -30,4 +30,7 @@ router.delete('/delete/:id', tenantController.delete);
 
 router.put('/completed/:id', tenantController.completed);
 
+//Invite Tenant
+router.post('/invite', tenantController.inviteTenant);
+
 module.exports = router;

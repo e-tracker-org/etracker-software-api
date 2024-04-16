@@ -43,6 +43,9 @@ export const updateProfileSchema = {
     }).optional(),
     profileImage: string().url().optional(),
     rating: number().optional(),
+    landmark: string({
+      required_error: 'Landmark is required',
+    }),
   }),
   params: object({
     profileId: string(),
