@@ -19,6 +19,7 @@ module.exports = (mongoose) => {
       currentKyc: { type: Object, default: null },
       profileImage: { type: String, default: '' },
       rating: { type: Number, default: 0 },
+      landmark: { type: String, default: '' },
     },
     { timestamps: true }
   );
