@@ -471,7 +471,7 @@ exports.inviteTenant = async (req, res) => {
   }
 };
 
-export const sendTenantInvite = async (propertyId, email, propertyName) => {
+const sendTenantInvite = async (propertyId, email, propertyName) => {
   return await sendEmail(email, `Invitation to Join ${propertyName} as a Tenant`, inviteTenantLinkTemplate(propertyId));
 };
 
