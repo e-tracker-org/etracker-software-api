@@ -461,18 +461,19 @@ exports.count = (req, res) => {
 };
 
 exports.inviteTenant = async (req, res) => {
-  const { propertyId, email, propertyName } = req.body;
+  const { propertyId, email, propertyName, invitedBy } = req.body;
 
+  console.log(req.body, 'req.body');
   if (propertyId && email) {
-    await sendTenantInvite(propertyId, email, propertyName);
+    await sendTenantInvite(propertyId, email, propertyName, invitedBy);
     res.status(200).json({ message: 'Tenant invited successfully' });
   } else {
     res.status(400).json({ message: 'Missing propertyId or email in request' });
   }
 };
 
-const sendTenantInvite = async (propertyId, email, propertyName) => {
-  return await sendEmail(email, `Invitation to Join ${propertyName} as a Tenant`, inviteTenantLinkTemplate(propertyId));
+const sendTenantInvite = async (propertyId, email, propertyName, invitedBy) => {
+  return await sendEmail(email, `Invitation to Join ${propertyName} as a Tenant`, inviteTenantLinkTemplate(propertyId, invitedBy));
 };
 
 const sendEndAgreementEmail = async (email, property, name) => {
