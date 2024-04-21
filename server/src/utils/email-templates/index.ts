@@ -56,8 +56,10 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
   return html;
 };
 
-export const inviteTenantLinkTemplate = (propertyId: string) => {
-  const inviteLink = `${CORS_ORIGIN}/auth/signup?propertyId=${propertyId}`;
+export const inviteTenantLinkTemplate = (propertyId: string, invitedBy: string) => {
+  // get landlord name from property
+  
+  const inviteLink = `${CORS_ORIGIN}/auth/invite-tenant?propertyId=${propertyId}&invitedBy=${invitedBy}`;
   //   const inviteLink = `${
   //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signup`;
