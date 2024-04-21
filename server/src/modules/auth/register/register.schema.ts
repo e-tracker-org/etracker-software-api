@@ -15,6 +15,7 @@ export const registerUserSchema = {
       required_error: 'phone number is required',
     }),
     propertyId: string().optional(),
+    landmark: string().optional(),
     password: string({
       required_error: 'password is required',
     })

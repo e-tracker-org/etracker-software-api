@@ -75,6 +75,9 @@ export class User {
   @prop({ default: '' })
   public fullAddress?: string;
 
+  @prop({ default: '' })
+  public landmark?: string;
+
   @prop({ ref: () => User })
   public updatedBy?: Ref<User>;
 
