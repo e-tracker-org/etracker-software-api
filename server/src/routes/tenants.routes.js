@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const tenantController = require('../controller/tenant.controller');
+const defaultContainer = require('../controller/tenantDefault.controller');
 
 // Retrieve all tenants
 router.get('/', tenantController.findAll);
@@ -32,5 +33,17 @@ router.put('/completed/:id', tenantController.completed);
 
 //Invite Tenant
 router.post('/invite', tenantController.inviteTenant);
+
+
+// DEFAULT URLS
+// Route to create a rating
+router.post('/default/create-default', defaultContainer.create);
+
+// Route to find the tenant rating
+router.get('/default/landlord/:landlordId', defaultContainer.getTenantLandlordDefault);
+
+router.get('/default/all', defaultContainer.getTenantDefault);
+
+router.put('/default/approve/:id', defaultContainer.approveDefaultRequest);
 
 module.exports = router;

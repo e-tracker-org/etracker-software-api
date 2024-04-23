@@ -10,38 +10,38 @@ const { findById } = require('../modules/property/property.service');
 const User = db.user;
 
 // Create and Save a new Tenant
-exports.create = (req, res) => {
-  //   if(!req.headers.authorization) {
-  //     return res.status(401).send({ message: "Unauthorized request" });
-  //   }
-  // Validate request
-  if (!req.body) {
-    res.status(400).send({ message: 'Content can not be empty!' });
-    return;
-  }
+// exports.create = (req, res) => {
+//   //   if(!req.headers.authorization) {
+//   //     return res.status(401).send({ message: "Unauthorized request" });
+//   //   }
+//   // Validate request
+//   if (!req.body) {
+//     res.status(400).send({ message: 'Content can not be empty!' });
+//     return;
+//   }
 
-  // Create a Tenant
-  const tenant = new Tenant({
-    userId: req.body.userId,
-    propertyId: req.body.propertyId,
-    landlordId: req.body.landlordId,
-    status: PropertyStatus.INCOMPLETE,
-  });
+//   // Create a Tenant
+//   const tenant = new Tenant({
+//     userId: req.body.userId,
+//     propertyId: req.body.propertyId,
+//     landlordId: req.body.landlordId,
+//     status: PropertyStatus.INCOMPLETE,
+//   });
 
-  // Save Tenant in the database
-  tenant
-    .save(tenant)
-    .then((data) => {
-      console.log('data', data);
-      res.status(200).send(data);
-    })
-    .catch((err) => {
-      console.log('err', err);
-      res.status(500).send({
-        message: err.message || 'Some error occurred while creating the Tenant.',
-      });
-    });
-};
+//   // Save Tenant in the database
+//   tenant
+//     .save(tenant)
+//     .then((data) => {
+//       console.log('data', data);
+//       res.status(200).send(data);
+//     })
+//     .catch((err) => {
+//       console.log('err', err);
+//       res.status(500).send({
+//         message: err.message || 'Some error occurred while creating the Tenant.',
+//       });
+//     });
+// };
 
 exports.create = (req, res) => {
   //   if(!req.headers.authorization) {
