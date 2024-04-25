@@ -367,6 +367,7 @@ export async function endTenantAgreementHandler(req: Request<{}, {}, {}>, res: R
 
 export async function notifyTenantHandler(req: Request<{}, {}, ReceiptBody>, res: Response, next: NextFunction) {
   const { email } = res.locals.user;
+  // @ts-ignore
   const { tenantIds, notifyMsg } = req.body;
 
   if (!notifyMsg) return apiError(res, `Notification message required`, StatusCodes.BAD_REQUEST);
@@ -378,17 +379,20 @@ export async function notifyTenantHandler(req: Request<{}, {}, ReceiptBody>, res
     if (!user) return apiError(res, `User not found`, StatusCodes.NOT_FOUND);
 
     // confirm the user is either  landlord
-    if (!user.accountTypes.includes(2)) return apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);
+    if (user.currentKyc?.accountType === 2){
 
     const firstname = user.firstname;
     const lastname = user.lastname;
     for (const tenantId of tenantIds) {
       const tenant = await findById(tenantId);
-      if (tenant && tenant.accountTypes.includes(1)) {
+      if (tenant) {
         await sendNotifyTenantEmail(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
       }
     }
     return apiResponse(res, `Email notification message successfully sent`, null, 201);
+  }{
+    return apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);
+  }
   } catch (err) {
     next(err);
   }
