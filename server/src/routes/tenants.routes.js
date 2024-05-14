@@ -12,8 +12,6 @@ router.post('/create', tenantController.create);
 // Retrieve property tenant
 router.get('/property/:propertyId', tenantController.propertyTenant);
 
-router.get('/tenant-property/:tenantId', tenantController.findPropertiesByTenantId);
-
 router.get('/landlord-properties/:landlordId', tenantController.landlordTenant);
 
 router.get('/transactions/:tenantId', tenantController.findTenantTransaction);
