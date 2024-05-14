@@ -12,6 +12,8 @@ router.post('/create', tenantController.create);
 // Retrieve property tenant
 router.get('/property/:propertyId', tenantController.propertyTenant);
 
+router.get('/tenant-property/:tenantId', tenantController.findPropertiesByTenantId);
+
 router.get('/landlord-properties/:landlordId', tenantController.landlordTenant);
 
 router.get('/transactions/:tenantId', tenantController.findTenantTransaction);
@@ -33,7 +35,6 @@ router.put('/completed/:id', tenantController.completed);
 
 //Invite Tenant
 router.post('/invite', tenantController.inviteTenant);
-
 
 // DEFAULT URLS
 // Route to create a rating
