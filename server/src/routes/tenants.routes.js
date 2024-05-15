@@ -38,6 +38,7 @@ router.post('/invite', tenantController.inviteTenant);
 // Route to create a rating
 router.post('/default/create-default', defaultContainer.create);
 
+// router.post('/default/', defaultContainer.getAllDefaultTenants);
 // Route to find the tenant rating
 router.get('/default/landlord/:landlordId', defaultContainer.getTenantLandlordDefault);
 

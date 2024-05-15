@@ -190,19 +190,16 @@ exports.landlordTenant = (req, res) => {
 
   Tenant.find({ landlordId: req.params.landlordId })
     .then((tenantData) => {
-      
-
       if (tenantData.length === 0) {
         return res.status(404).send({ message: 'No data found for the specified landlordId' });
       }
       const userIds = tenantData.map((tenant) => tenant.userId);
 
-
       return User.find({ userId: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
 
-      console.log('Fetched Data:', user);
+          console.log('Fetched Data:', user);
 
           return {
             tenantData: tenant,
@@ -461,19 +458,23 @@ exports.count = (req, res) => {
 };
 
 exports.inviteTenant = async (req, res) => {
-  const { propertyId, email, propertyName, invitedBy } = req.body;
+  const { propertyId, email, propertyName, invitedBy, userId } = req.body;
 
   console.log(req.body, 'req.body');
   if (propertyId && email) {
-    await sendTenantInvite(propertyId, email, propertyName, invitedBy);
+    await sendTenantInvite(propertyId, email, propertyName, invitedBy, userId);
     res.status(200).json({ message: 'Tenant invited successfully' });
   } else {
     res.status(400).json({ message: 'Missing propertyId or email in request' });
   }
 };
 
-const sendTenantInvite = async (propertyId, email, propertyName, invitedBy) => {
-  return await sendEmail(email, `Invitation to Join ${propertyName} as a Tenant`, inviteTenantLinkTemplate(propertyId, invitedBy));
+const sendTenantInvite = async (propertyId, email, propertyName, invitedBy, userId) => {
+  return await sendEmail(
+    email,
+    `Invitation to Join ${propertyName} as a Tenant`,
+    inviteTenantLinkTemplate(propertyId, invitedBy, userId)
+  );
 };
 
 const sendEndAgreementEmail = async (email, property, name) => {

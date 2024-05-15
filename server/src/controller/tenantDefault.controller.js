@@ -98,3 +98,21 @@ exports.approveDefaultRequest = (req, res) => {
       });
     });
 };
+
+exports.getAllDefaultTenants = (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send({ message: 'Unauthorized request' });
+  }
+
+  TenantDefault.find()
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({ message: 'No default tenants found' });
+      } else {
+        res.status(200).send(data);
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({ message: 'Error retrieving default tenants' });
+    });
+};
