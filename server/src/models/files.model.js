@@ -1,22 +1,21 @@
+module.exports = (mongoose) => {
+  var schema = mongoose.Schema(
+    {
+      docTypeID: String,
+      userId: String,
+      description: String,
+      docNo: String,
+      status: String,
+    },
+    { timestamps: true }
+  );
 
-module.exports = mongoose => {
-    var schema = mongoose.Schema(
-      {
-        docTypeID: String,
-        userId: String,
-        description: String,
-        docNo: String,
-        status: String,
-      },
-      { timestamps: true }
-    );
-  
-    schema.method("toJSON", function() {
-      const { __v, _id, ...object } = this.toObject();
-      object.id = _id;
-      return object;
-    });
-  
-    const Files = mongoose.model("files", schema);
-    return Files;
-  };
+  schema.method('toJSON', function () {
+    const { __v, _id, ...object } = this.toObject();
+    object.id = _id;
+    return object;
+  });
+
+  const Files = mongoose.model('files', schema);
+  return Files;
+};

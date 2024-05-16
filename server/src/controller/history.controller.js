@@ -44,7 +44,6 @@ exports.createHistory = async (req, res) => {
         tenantEmail: req.body.tenantEmail,
         propertyId: [req.body.propertyId],
         landlordId: [req.body.landlordId],
-        status: req.body.status,
       });
 
       // Save the new history entry in the database
