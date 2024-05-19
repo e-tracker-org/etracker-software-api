@@ -41,7 +41,7 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
   // }/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
 
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${tenantInfo.firstname} ${tenantInfo.lastname} </h4>,
         <p>
         We are pleased to inform you that you have been assigned as a tenant for the property located at [${tenantInfo?.address}]. As a tenant,
          we kindly request your prompt action to confirm your tenancy and complete the necessary steps, 
