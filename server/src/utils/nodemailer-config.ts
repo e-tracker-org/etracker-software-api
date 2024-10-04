@@ -20,11 +20,11 @@ let transporter = nodemailer.createTransport({
     user: MAIL_USER,
     pass: MAIL_PASS,
   },
-  default: {
-    from: 'no-reply@e-tracka.com',
-    name: 'E-Tracker',
-    adminMail: 'no-reply@e-tracka.com',
-},
+//   default: {
+//     from: 'no-reply@e-tracka.com',
+//     name: 'E-Tracker',
+//     adminMail: 'no-reply@e-tracka.com',
+// },
 });
 
 

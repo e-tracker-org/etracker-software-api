@@ -1,4 +1,4 @@
-import { GMAIL_USER } from '../../constants';
+import { GMAIL_USER, MAIL_USER } from '../../constants';
 import transporter from '../../utils/nodemailer-config';
 interface Attachment {
   filename: string;
@@ -15,7 +15,7 @@ interface Attachment {
  */
 export async function sendEmail(toEmail: string, subject: string, context: string, attachments?: Attachment[]) {
   const emailConfig = {
-    from: GMAIL_USER,
+    from: MAIL_USER,
     to: toEmail,
     subject,
     html: context,
