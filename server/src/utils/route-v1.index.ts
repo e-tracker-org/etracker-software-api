@@ -30,6 +30,8 @@ import tenantRating from '../routes/rating.routes';
 import imageUserRoute from '../routes/image.routes';
 // @ts-ignore
 import frontProperty from '../routes/property.routes';
+// @ts-ignore
+import history from '../routes/history.routes';
 
 const router = express.Router();
 
@@ -136,7 +138,11 @@ const routes: RoutesInterface[] = [
   {
     path: '/general-properties',
     route: frontProperty,
-  }
+  },
+  {
+    path: '/history',
+    route: history,
+  },
 ];
 
 routes.forEach((route) => router.use(route.path, route.route));

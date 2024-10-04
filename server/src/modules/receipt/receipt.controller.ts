@@ -7,6 +7,7 @@ import PDFDocument from 'pdfkit';
 import { sendEmail } from '../email-service';
 import { sendReceiptTemaplate } from '../../utils/email-templates';
 import { CLOUD_KEY, CLOUD_NAME, CLOUD_SECRET } from '../../constants';
+import { findById } from '../profile/profile.service';
 
 const cloudinary = require('cloudinary').v2;
 
@@ -120,7 +121,8 @@ export async function sendReceiptEmailHandler(req: Request<{}, {}, ReceiptBody>,
   const receiptDetail = { category, dueDate, amount, description, recipients, pdfBuffer };
 
   for (const recipient of recipients) {
-    await sendReceiptEmail(recipient.email, recipient.name, receiptDetail, attachments);
+    const tenant = await findById(recipient.id);
+    await sendReceiptEmail(recipient.email, tenant?.firstname, receiptDetail, attachments);
   }
   res.locals.receiptUploadInfo = receiptDetail;
 
@@ -160,7 +162,7 @@ export async function uploadReceiptHandler(req: Request<{}, {}, ReceiptBody>, re
   }
 }
 
-export const sendReceiptEmail = async (recipient: string, name: string, receiptDetail: any, attachments) => {
+export const sendReceiptEmail = async (recipient: string, name: any, receiptDetail: any, attachments) => {
   return await sendEmail(
     recipient,
     `${receiptDetail.category} payment receipt`,

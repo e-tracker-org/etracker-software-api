@@ -1,6 +1,6 @@
 const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
 const { CLOUD_NAME, CLOUD_KEY, CLOUD_SECRET } = require('../constants');
-const uploadDir = require('../modules/uploads/upload-dir');
 
 cloudinary.config({
   cloud_name: CLOUD_NAME,
@@ -8,7 +8,11 @@ cloudinary.config({
   api_secret: CLOUD_SECRET,
 });
 
+// Configure Multer for handling file uploads
+const upload = multer({ dest: 'uploads/' });
+
 async function uploadImage(req, res, next) {
+  console.log(req, 'request');
   try {
     const { authorization } = req.headers;
 
@@ -17,28 +21,23 @@ async function uploadImage(req, res, next) {
       return res.status(401).send({ message: 'Unauthorized request' });
     }
 
-    // Check if the request body contains necessary data
-    if (!req.body || !req.body.imageFileName) {
-      return res.status(400).send({ message: 'Invalid data provided for image upload.' });
+    // Check if a file is provided
+    if (!req.file) {
+      return res.status(400).send({ message: 'No file uploaded.' });
     }
 
-    // Get the image file name from the request body
-    const { imageFileName } = req.body;
-
     // Upload image to Cloudinary
-    const { secure_url: url, asset_id: id } = await cloudinary.uploader.upload(`${uploadDir}/${imageFileName}`, {
+    const { secure_url: url, asset_id: id } = await cloudinary.uploader.upload(req.file.path, {
       secure: true,
     });
 
     // Send the uploaded image URL and asset ID in the response
-    res.locals.uploadedImage = { url, id };
-
-    // Call the next middleware
-    next();
+    res.status(200).send({ url, id });
   } catch (error) {
-    // Pass any errors to the error handling middleware
     next(error);
   }
 }
 
-module.exports = { uploadImage };
+module.exports = {
+  uploadImage: [upload.single('doc1_files'), uploadImage],
+};

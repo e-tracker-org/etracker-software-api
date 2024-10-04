@@ -41,7 +41,7 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
   // }/auth/signin?tenantId=${tenantInfo?.tenantId}&propertyId=${tenantInfo?.propertyId}`;
 
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${tenantInfo.firstname} ${tenantInfo.lastname} </h4>,
         <p>
         We are pleased to inform you that you have been assigned as a tenant for the property located at [${tenantInfo?.address}]. As a tenant,
          we kindly request your prompt action to confirm your tenancy and complete the necessary steps, 
@@ -56,10 +56,10 @@ export const emailTenantPropertyConfirmationLinkTemplate = (user: User, tenantIn
   return html;
 };
 
-export const inviteTenantLinkTemplate = (propertyId: string, invitedBy: string) => {
+export const inviteTenantLinkTemplate = (propertyId: string, invitedBy: string, userId: string) => {
   // get landlord name from property
-  
-  const inviteLink = `${CORS_ORIGIN}/auth/invite-tenant?propertyId=${propertyId}&invitedBy=${invitedBy}`;
+
+  const inviteLink = `${CORS_ORIGIN}/auth/invite-tenant?propertyId=${propertyId}&invitedBy=${invitedBy}&landlordId=${userId}`;
   //   const inviteLink = `${
   //     CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signup`;
