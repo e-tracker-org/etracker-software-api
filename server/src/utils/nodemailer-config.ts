@@ -18,7 +18,7 @@ let transporter = nodemailer.createTransport({
   secure: true, 
   auth: {
     user: MAIL_USER,
-    pass: MAIL_PASS // zcEG1v*7pB(98G
+    pass: MAIL_PASS,
   },
   default: {
     from: 'no-reply@e-tracka.com',
