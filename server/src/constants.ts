@@ -15,3 +15,7 @@ export const EXPRESS_SESSION_SECRET = process.env.EXPRESS_SESSION_SECRET || ``;
 export const CLOUD_NAME = process.env.CLOUD_NAME;
 export const CLOUD_KEY = process.env.CLOUD_KEY;
 export const CLOUD_SECRET = process.env.CLOUD_SECRET;
+
+
+export const MAIL_USER = process.env.MAIL_USER;
+export const MAIL_PASS = process.env.MAIL_PASS;
