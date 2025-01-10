@@ -24,7 +24,7 @@ exports.create = (req, res) => {
     tenantName: req.body.tenantName,
     landlordNIN: req.body.landlordNIN,
     tenantNIN: req.body.tenantNIN,
-    status: 'PENDING-APPROVAL',
+    status: 'SUBMITTED',
     image_list: req.body.imageList,
   });
 
