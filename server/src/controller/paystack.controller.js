@@ -66,6 +66,7 @@ router.post('/verify', async (req, res) => {
       firstName,
       lastName,
       nin,
+      tenantId,
       email,
       phoneNumber,
       paymentReference: reference,
@@ -184,14 +185,14 @@ router.get('/verify/:reference', async (req, res) => {
 });
 
 // api to delete all verification requests
-router.get('/verification/requests/delete', async (req, res) => {
-  try {
-    await VerificationRequest.deleteMany({});
-    res.json({ message: 'All verification requests deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to delete verification requests' });
-  }
-})
+// router.get('/verification/requests/delete', async (req, res) => {
+//   try {
+//     await VerificationRequest.deleteMany({});
+//     res.json({ message: 'All verification requests deleted successfully' });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to delete verification requests' });
+//   }
+// })
 
 router.get('/verification/requests', async (req, res) => {
   try {
