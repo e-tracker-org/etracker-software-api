@@ -20,6 +20,15 @@ module.exports = (mongoose) => {
       profileImage: { type: String, default: '' },
       rating: { type: Number, default: 0 },
       landmark: { type: String, default: '' },
+      subscriptionStatus: { type: String, default: 'inactive' },
+      subscriptionStart: { type: Date, default: null },
+      subscriptionReference: { type: String, default: '' },
+      verificationRequests: [
+        {
+        reference: { type: String, default: '' },
+        status: { type: String, default: 'pending' },
+        result: { type: String, default: '' },
+      }]
     },
     { timestamps: true }
   );

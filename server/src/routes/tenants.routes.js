@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const checkSubscription = require('../middleware/checkSubscription')
 const tenantController = require('../controller/tenant.controller');
 const defaultContainer = require('../controller/tenantDefault.controller');
 
@@ -7,7 +8,7 @@ const defaultContainer = require('../controller/tenantDefault.controller');
 router.get('/', tenantController.findAll);
 
 // Create a new task
-router.post('/create', tenantController.create);
+router.post('/create', checkSubscription, tenantController.create);
 
 // Retrieve property tenant
 router.get('/property/:propertyId', tenantController.propertyTenant);

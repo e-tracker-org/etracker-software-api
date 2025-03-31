@@ -32,6 +32,8 @@ import imageUserRoute from '../routes/image.routes';
 import frontProperty from '../routes/property.routes';
 // @ts-ignore
 import history from '../routes/history.routes';
+// @ts-ignore
+import payment from '../routes/payment.routes';
 
 const router = express.Router();
 
@@ -142,6 +144,10 @@ const routes: RoutesInterface[] = [
   {
     path: '/history',
     route: history,
+  },
+  {
+    path: '/payment',
+    route: payment,
   },
 ];
 

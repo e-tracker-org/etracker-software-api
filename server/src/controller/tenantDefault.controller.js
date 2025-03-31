@@ -10,8 +10,6 @@ exports.create = (req, res) => {
     return;
   }
 
-  console.log('request', req.body);
-
   // Create a Tenant
   const tenant = new TenantDefault({
     propertyAddress: req.body.propertyAddress,
