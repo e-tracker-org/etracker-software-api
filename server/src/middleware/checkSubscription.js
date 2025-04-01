@@ -1,5 +1,5 @@
-const User = require('../models/user.model');
-import {User} from "../modules/auth/register/register.model";
+const User = require('../modules/auth/register/register.model');
+// import {User} from "../modules/auth/register/register.model";
 
 const checkSubscription = async (req, res, next) => {
   const { email } = req.user; // Assume email is set by auth middleware (e.g., JWT)
