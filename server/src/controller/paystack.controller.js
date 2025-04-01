@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const paystack = require('../utils/paystack');
 const { v4: uuidv4 } = require('uuid');
-import {findUserByEmail} from "../modules/auth/register/register.service";
+const {findUserByEmail} = require("../modules/auth/register/register.service");
 const {User, UserModel} = require('../modules/auth/register/register.model');
 const VerificationRequest = require('../models/VerificationRequest');
 
