@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const paystack = require('../utils/paystack');
 const { v4: uuidv4 } = require('uuid');
-const User = require('../modules/auth/register/register.model');
+import {findUserByEmail} from "../modules/auth/register/register.service";
+const {User, UserModel} = require('../modules/auth/register/register.model');
 const VerificationRequest = require('../models/VerificationRequest');
 
 // Check subscription status
@@ -10,7 +11,7 @@ router.get('/subscription/status', async (req, res) => {
   const { email } = req.query; 
 
   try {
-    const user = await User.findOne({ email });
+    const user = await findUserByEmail(email);
     if (!user) return res.status(404).json({ error: 'User not found' });
 
     const isActive = user.subscriptionStatus === 'active' && 
@@ -218,8 +219,7 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       const { email, amount, reference } = event.data;
 
       if (reference.startsWith('sub_')) {
-        // Subscription payment
-        await User.updateOne(
+        await UserModel.updateOne(
           { email },
           {
             subscriptionStatus: 'active',
