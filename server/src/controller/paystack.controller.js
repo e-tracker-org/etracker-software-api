@@ -219,7 +219,9 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
       const { email, amount, reference } = event.data;
 
       if (reference.startsWith('sub_')) {
-        await UserModel.updateOne(
+        console.log('Updating subscription for user:', { email, reference });
+      
+        const updateResult = await UserModel.updateOne(
           { email },
           {
             subscriptionStatus: 'active',
@@ -227,6 +229,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
             subscriptionReference: reference,
           }
         );
+      
+        console.log('Update result:', updateResult);
       } else if (reference.startsWith('ver_')) {
         await VerificationRequest.updateOne(
           { paymentReference: reference },
