@@ -78,7 +78,7 @@ router.post('/verify', async (req, res) => {
     // Initialize Paystack payment
     const response = await paystack.transaction.initialize({
       email: userEmail, 
-      amount: 1000 * 100, // 1K NGN in kobo
+      amount: 1000 * 100, 
       reference,
       metadata: {
         verification_data: {

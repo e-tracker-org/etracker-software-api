@@ -1,4 +1,4 @@
-export const PORT = process.env.PORT;
+export const PORT = process.env.PORT || 8800;
 export const CORS_ORIGIN = process.env.CORS_ORIGIN || `https://etracker-software-frontend.vercel.app`;
 export const DB_CONNECTION_STRING = process.env.DB_CONNECTION_STRING || `mongodb://localhost:27017/e-tracker-db`;
 export const GMAIL_USER = process.env.GMAIL_USER;
