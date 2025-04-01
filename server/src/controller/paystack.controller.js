@@ -2,12 +2,12 @@ const express = require('express');
 const router = express.Router();
 const paystack = require('../utils/paystack');
 const { v4: uuidv4 } = require('uuid');
-const User = require('../models/user.model');
+const User = require('../modules/auth/register/register.model');
 const VerificationRequest = require('../models/VerificationRequest');
 
 // Check subscription status
 router.get('/subscription/status', async (req, res) => {
-  const { email } = req.query; // Assume email is passed (e.g., from logged-in user)
+  const { email } = req.query; 
 
   try {
     const user = await User.findOne({ email });
@@ -22,6 +22,7 @@ router.get('/subscription/status', async (req, res) => {
       subscriptionStart: user.subscriptionStart,
     });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ error: 'Failed to check subscription status' });
   }
 });
@@ -50,7 +51,7 @@ router.post('/subscribe', async (req, res) => {
 
 
 router.post('/verify', async (req, res) => {
-  const { userEmail, firstName, lastName, nin, email, phoneNumber } = req.body;
+  const { userEmail, firstName, lastName, nin, email, phoneNumber, tenantId } = req.body;
   
   // Validate required fields
   if (!userEmail || !firstName || !lastName || !nin || !email || !phoneNumber) {
@@ -184,15 +185,14 @@ router.get('/verify/:reference', async (req, res) => {
   }
 });
 
-// api to delete all verification requests
-// router.get('/verification/requests/delete', async (req, res) => {
-//   try {
-//     await VerificationRequest.deleteMany({});
-//     res.json({ message: 'All verification requests deleted successfully' });
-//   } catch (error) {
-//     res.status(500).json({ error: 'Failed to delete verification requests' });
-//   }
-// })
+router.get('/verification/requests/delete', async (req, res) => {
+  try {
+    await VerificationRequest.deleteMany({});
+    res.json({ message: 'All verification requests deleted successfully' });
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to delete verification requests' });
+  }
+})
 
 router.get('/verification/requests', async (req, res) => {
   try {

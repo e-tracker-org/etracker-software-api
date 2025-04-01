@@ -84,6 +84,15 @@ export class User {
   @prop({ default: false })
   public isUserVerified?: boolean;
 
+  @prop({ default: 'inactive' })
+  public subscriptionStatus?: string;
+
+  @prop({ default: null })
+  public subscriptionStart?: Date;
+
+  @prop({ default: '' })
+  public subscriptionReference?: string;
+
   @prop({ default: [] })
   public accountTypes?: number[];
 
