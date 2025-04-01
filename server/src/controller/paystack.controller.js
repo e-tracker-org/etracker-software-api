@@ -219,7 +219,8 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
     if (event.event === 'charge.success') {
       const { email, amount, reference } = event.data;
-
+      console.log("event", event);
+      console.log("event data", event.data);
       if (reference.startsWith('sub_')) {
         console.log('Updating subscription for user:', { email, reference });
         const updateResult = await UserModel.updateOne(
