@@ -33,12 +33,14 @@ router.post('/subscribe', async (req, res) => {
   const { email } = req.body;
   const planCode = 'PLN_gpfv69yl862nq1y';
 
+  const reference = `sub_${uuidv4()}`;
+
   try {
     const response = await paystack.transaction.initialize({
       email,
       amount: 10000 * 100,
       plan: planCode,
-      reference: `sub_${uuidv4()}`,
+      reference: reference,
     });
 
     res.json({
@@ -220,7 +222,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
       if (reference.startsWith('sub_')) {
         console.log('Updating subscription for user:', { email, reference });
-      
         const updateResult = await UserModel.updateOne(
           { email },
           {
