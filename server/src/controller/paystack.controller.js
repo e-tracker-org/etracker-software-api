@@ -54,7 +54,7 @@ router.post('/subscribe', async (req, res) => {
 
 
 router.post('/verify', async (req, res) => {
-  const { userEmail, firstName, lastName, nin, email, phoneNumber, tenantId } = req.body;
+  const { userEmail, firstName, lastName, nin, email, phoneNumber, tenantId, userId } = req.body;
   
   // Validate required fields
   if (!userEmail || !firstName || !lastName || !nin || !email || !phoneNumber) {
@@ -73,6 +73,7 @@ router.post('/verify', async (req, res) => {
       tenantId,
       email,
       phoneNumber,
+      userId,
       paymentReference: reference,
       status: 'pending'
     });
@@ -219,8 +220,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
 
     if (event.event === 'charge.success') {
       const { amount, reference } = event.data;
-      console.log("event", event);
-      console.log("event data", event.data);
       const email = event.data.customer.email;
       if (reference.startsWith('sub_')) {
         console.log('Updating subscription for user:', { email, reference });
