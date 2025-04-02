@@ -53,6 +53,25 @@ router.post('/subscribe', async (req, res) => {
 });
 
 
+// router.get('/unsubscribe', async (req, res) => {
+//   const { email } = req.params;
+
+//   try {
+//     const user = await findUserByEmail(email);
+//     if (!user) return res.status(404).json({ error: 'User not found' });
+
+//     user.subscriptionStatus = 'inactive';
+//     user.subscriptionStart = null;
+//     user.subscriptionReference = null;
+//     await user.save();
+//     res.json({ message: 'Subscription canceled' });
+//   } catch (error) {
+//     res.status(500).json({ error: 'Failed to cancel subscription' });
+//   }
+// });
+
+
+
 router.post('/verify', async (req, res) => {
   const { userEmail, firstName, lastName, nin, email, phoneNumber, tenantId, userId } = req.body;
   
@@ -198,7 +217,7 @@ router.get('/verification/requests/delete', async (req, res) => {
   }
 })
 
-router.get('/verification/requests', async (req, res) => {
+router.get('/verification/requests/all', async (req, res) => {
   try {
     const verificationRequests = await VerificationRequest.find();
     res.json(verificationRequests);
@@ -206,6 +225,22 @@ router.get('/verification/requests', async (req, res) => {
     res.status(500).json({ error: 'Failed to fetch verification requests' });
   }
 })
+
+router.get('/verification/requests', async (req, res) => {
+  const { userId } = req.query; 
+
+  try {
+    if (!userId) {
+      return res.status(400).json({ error: 'userId is required' });
+    }
+
+    const verificationRequests = await VerificationRequest.find({ userId });
+    res.json(verificationRequests);
+  } catch (error) {
+    console.error('Error fetching verification requests:', error);
+    res.status(500).json({ error: 'Failed to fetch verification requests' });
+  }
+});
 
 // Webhook (updated to handle verification)
 router.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
@@ -232,7 +267,6 @@ router.post('/webhook', express.raw({ type: 'application/json' }), async (req, r
           }
         );
       
-        console.log('Update result:', updateResult);
       } else if (reference.startsWith('ver_')) {
         await VerificationRequest.updateOne(
           { paymentReference: reference },
