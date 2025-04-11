@@ -114,3 +114,28 @@ exports.getAllDefaultTenants = (req, res) => {
       res.status(500).send({ message: 'Error retrieving default tenants' });
     });
 };
+
+exports.delete = (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send({ message: 'Unauthorized request' });
+  }
+  const id = req.params.id;
+
+  TenantDefault.findByIdAndRemove(id)
+    .then((data) => {
+      if (!data) {
+        res.status(404).send({
+          message: `Cannot delete Tenant with id=${id}. Maybe Tenant was not found!`,
+        });
+      } else {
+        res.send({
+          message: 'Tenant was deleted successfully!',
+        });
+      }
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: 'Could not delete Tenant with id=' + id,
+      });
+    });
+};

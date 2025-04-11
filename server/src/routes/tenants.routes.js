@@ -39,6 +39,9 @@ router.post('/invite', tenantController.inviteTenant);
 // Route to create a rating
 router.post('/default/create-default', defaultContainer.create);
 
+// delete default
+router.delete('/default/delete-default/:id', defaultContainer.delete);
+
 // router.post('/default/', defaultContainer.getAllDefaultTenants);
 // Route to find the tenant rating
 router.get('/default/landlord/:landlordId', defaultContainer.getTenantLandlordDefault);
