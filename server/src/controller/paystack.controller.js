@@ -128,6 +128,42 @@ router.post('/verify', async (req, res) => {
   }
 });
 
+router.post('/search-tenant', async (req, res) => {
+  const { searchTerm, userId, email, amount } = req.body;
+
+  if (!userId || !email || !amount) {
+    return res.status(400).json({ error: 'userId, email, and amount are required' });
+  }
+
+  const reference = `tenant_${uuidv4()}`; 
+
+  try {
+    // Initialize Paystack payment
+    const response = await paystack.transaction.initialize({
+      email,
+      amount,
+      reference,
+      metadata: {
+        userId,
+        searchTerm,
+        purpose: 'Tenant Search Payment',
+      },
+    });
+
+    res.json({
+      authorization_url: response.data.authorization_url,
+      reference,
+      access_code: response.data.access_code,
+    });
+  } catch (error) {
+    console.error('Error initializing tenant search payment:', error);
+    res.status(500).json({
+      error: 'Payment initialization failed',
+      details: error.message,
+    });
+  }
+});
+
 
 router.get('/verify/:reference', async (req, res) => {
   try {
