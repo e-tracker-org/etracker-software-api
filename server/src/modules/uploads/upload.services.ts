@@ -43,4 +43,8 @@ export async function deleteOneFileByFileId(id: string) {
   return await FileItemModel.deleteOne({_id: id})
 }
 
+export async function getFilesByUserId(userId: string) {
+  return await FileItemModel.find({userId: userId});
+}
+
 export { createDocs, getAllFiles, getFileById, deleteById, purgeDocs };

@@ -4,7 +4,8 @@ import {
     getAllFilesHandler,
     finishUploadHandler,
     getUserFilesByCategoryAndType,
-    deleteFileHandler
+    deleteFileHandler,
+    getFilesUsingUserId
 } from './upload.controller';
 import uploadHelper from './upload-mw';
 import requireUser from "../../middleware/requireUser";
@@ -18,5 +19,9 @@ router.route('/')
 // router.route('/').post(uploadHelper, finishUploadHandler).get(getAllFilesHandler).delete(docsPurgeHandler);
 router.route('/userFiles/:category/:type')
     .get(requireUser, getUserFilesByCategoryAndType);
+
+    // get user all files using user id
+router.route('/allUserFiles/:userId')
+    .get(getFilesUsingUserId);
 
 export default router;

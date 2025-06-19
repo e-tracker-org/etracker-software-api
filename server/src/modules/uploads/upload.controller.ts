@@ -6,6 +6,7 @@ import {
   createOrUpdateDocs,
   deleteFileById,
   getAllFiles,
+  getFilesByUserId,
   getFilesByUserIdAndDocTypeId,
   purgeDocs
 } from './upload.services';
@@ -59,6 +60,17 @@ async function uploadToDB(req: Request, res: Response, next: NextFunction) {
 async function getAllFilesHandler(req: Request, res: Response, next: NextFunction) {
   try {
     const result = await getAllFiles();
+    return apiResponse(res, 'Successful', result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+
+export async function getFilesUsingUserId(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { userId } = req.params;
+    const result = await getFilesByUserId(userId);
     return apiResponse(res, 'Successful', result);
   } catch (error) {
     next(error);

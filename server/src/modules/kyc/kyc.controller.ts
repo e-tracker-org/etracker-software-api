@@ -29,6 +29,28 @@ async function checkParams(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+
+export async function getUserKYCbyId(req: Request, res: Response, next: NextFunction) {
+  try {
+    const { id } = req.params;
+    const kyc = await findKycById(id);
+    return apiResponse(res, 'Successful', kyc);
+  } catch (error) {
+    next(error);
+  }
+}
+
+// update kyc
+export async function updateUserKYC(req: Request, res: Response, next: NextFunction) {
+  try {
+    const kyc = await updateOngoingKyc(res, next);
+    return apiResponse(res, 'Successful', kyc);
+  } catch (error) {
+    next(error);
+  }
+}
+
+
 export async function kycHandler(req: Request, res: Response, next: NextFunction) {
   const kycStage = Number(req.params.stage);
   const accountType = Number(req.params.accountType);
@@ -137,6 +159,7 @@ export async function updateKycStatus(req: Request, res: Response, next: NextFun
       // Handle successful update and return response
       return apiResponse(res, 'Kyc status updated successfully', null, StatusCodes.OK);
     } else {
+      console.log('Kyc not completed', kycDetails);
       throw 'Kyc not completed';
     }
   } catch (error) {

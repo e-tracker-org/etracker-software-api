@@ -4,4 +4,5 @@ const paystackController = require('../controller/paystack.controller');
 
 router.use('/', paystackController);
 
+
 module.exports = router;

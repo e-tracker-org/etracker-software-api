@@ -71,6 +71,101 @@ router.post('/subscribe', async (req, res) => {
 // });
 
 
+// user payments by userId
+router.get('/user/payments/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    // 1. Get user and subscription details
+    const user = await UserModel.findById(userId).lean();
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    // 2. Get all verification requests for this user
+    const verificationRequests = await VerificationRequest.find({ userId }).lean();
+
+    // 3. Prepare subscription details
+    const subscription = {
+      status: user.subscriptionStatus,
+      start: user.subscriptionStart,
+      reference: user.subscriptionReference,
+    };
+
+    res.json({
+      subscription,
+      verificationRequests,
+    });
+  } catch (error) {
+    console.error('Failed to fetch user payments:', error);
+    res.status(500).json({ error: 'Failed to fetch user payments' });
+  }
+});
+
+
+// new function to get all transactions from paystack
+router.get('/transactions', async (req, res) => {
+  try {
+    const transactions = await paystack.transaction.list();
+    res.json(transactions);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch transactions' });
+  }
+});
+
+
+router.post('/transactions/:id/reinitiate', async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    // Try to find by ObjectId first, fallback to paymentReference if invalid
+    let payment = null;
+    if (/^[0-9a-fA-F]{24}$/.test(id)) {
+      payment = await VerificationRequest.findById(id);
+    }
+    if (!payment) {
+      payment = await VerificationRequest.findOne({ paymentReference: id });
+    }
+    if (!payment) {
+      return res.status(404).json({ error: 'Payment not found' });
+    }
+
+    // Generate a new reference
+    const newReference = `ver_${uuidv4()}`;
+
+    // Re-initiate payment with Paystack
+    const response = await paystack.transaction.initialize({
+      email: payment.userEmail,
+      amount: 1000 * 100,
+      reference: newReference,
+      metadata: {
+        verification_data: {
+          firstName: payment.firstName,
+          lastName: payment.lastName,
+          nin: payment.nin,
+          email: payment.email,
+          phoneNumber: payment.phoneNumber
+        }
+      }
+    });
+
+    // Update the payment record with new reference and status
+    payment.paymentReference = newReference;
+    payment.status = 'pending';
+    payment.paymentVerified = false;
+    payment.verifiedAt = null;
+    await payment.save();
+
+    res.json({
+      ...payment.toObject(),
+      authorization_url: response.data.authorization_url,
+      reference: newReference,
+      access_code: response.data.access_code
+    });
+  } catch (error) {
+    console.error('Error reinitiating payment:', error);
+    res.status(500).json({ error: 'Failed to reinitiate payment', details: error.message });
+  }
+});
 
 router.post('/verify', async (req, res) => {
   const { userEmail, firstName, lastName, nin, email, phoneNumber, tenantId, userId } = req.body;

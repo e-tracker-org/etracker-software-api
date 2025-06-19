@@ -34,6 +34,8 @@ import frontProperty from '../routes/property.routes';
 import history from '../routes/history.routes';
 // @ts-ignore
 import payment from '../routes/payment.routes';
+// @ts-ignore
+import approval from '../routes/approval.routes';
 
 const router = express.Router();
 
@@ -148,6 +150,14 @@ const routes: RoutesInterface[] = [
   {
     path: '/payment',
     route: payment,
+  },
+  {
+    path: '/users',
+    route: newUserRoute,
+  },
+  {
+    path: '/approvals',
+    route: approval,
   },
 ];
 
