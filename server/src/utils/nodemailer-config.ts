@@ -13,7 +13,7 @@ const nodemailer = require('nodemailer');
 // });
 
 let transporter = nodemailer.createTransport({
-  host: "mail.e-tracka.com",
+  host: "wghp7.wghservers.com",
   port: 465,
   secure: true, 
   auth: {
