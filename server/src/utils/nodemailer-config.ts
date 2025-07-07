@@ -11,20 +11,17 @@ const nodemailer = require('nodemailer');
 //     pass: GMAIL_PASS,
 //   },
 // });
+console.log('MAIL_USER:', MAIL_USER);
+console.log('MAIL_PASS:', MAIL_PASS);
 
 let transporter = nodemailer.createTransport({
-  host: "wghp7.wghservers.com",
+  host: "mail.e-tracker.com",
   port: 465,
   secure: true, 
   auth: {
     user: MAIL_USER,
     pass: MAIL_PASS,
   },
-//   default: {
-//     from: 'no-reply@e-tracka.com',
-//     name: 'E-Tracker',
-//     adminMail: 'no-reply@e-tracka.com',
-// },
 });
 
 
