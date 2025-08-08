@@ -19,3 +19,4 @@ export const CLOUD_SECRET = process.env.CLOUD_SECRET;
 
 export const MAIL_USER = process.env.MAIL_USER;
 export const MAIL_PASS = process.env.MAIL_PASS;
+export const RESEND_API_KEY = process.env.RESEND_API_KEY;

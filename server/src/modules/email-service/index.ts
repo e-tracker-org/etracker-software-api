@@ -1,10 +1,12 @@
-import { GMAIL_USER, MAIL_USER } from '../../constants';
-import transporter from '../../utils/nodemailer-config';
+import { MAIL_USER } from '../../constants';
+import resend from '../../utils/resend-config';
+
 interface Attachment {
   filename: string;
   content: any;
   contentType: string;
 }
+
 /**
  * email service that configures and sends email with parameters to recipient.
  * @export
@@ -15,15 +17,16 @@ interface Attachment {
  */
 export async function sendEmail(toEmail: string, subject: string, context: string, attachments?: Attachment[]) {
   const emailConfig = {
-    from: MAIL_USER,
+    from: MAIL_USER || 'no-reply@e-tracka.com',
     to: toEmail,
     subject,
     html: context,
+    // Note: Resend handles attachments differently - you may need to adjust this based on your needs
     attachments
   };
 
   try {
-    await transporter.sendMail(emailConfig);
+    await resend.emails.send(emailConfig);
   } catch (error) {
     throw error;
   }

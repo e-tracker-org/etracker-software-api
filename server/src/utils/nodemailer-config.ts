@@ -17,7 +17,7 @@ console.log('MAIL_PASS:', MAIL_PASS);
 let transporter = nodemailer.createTransport({
   host: "mail.e-tracka.com",
   port: 465,
-  secure: true, 
+  secure: true,
   auth: {
     user: MAIL_USER,
     pass: MAIL_PASS,
