@@ -15,7 +15,7 @@ console.log('MAIL_USER:', MAIL_USER);
 console.log('MAIL_PASS:', MAIL_PASS);
 
 let transporter = nodemailer.createTransport({
-  host: "mail.e-tracka.com",
+  host: "smtp.gmail.com",
   port: 465,
   secure: true,
   auth: {

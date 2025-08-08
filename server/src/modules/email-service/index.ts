@@ -1,5 +1,5 @@
 import { MAIL_USER } from '../../constants';
-import resend from '../../utils/resend-config';
+import transporter from '../../utils/nodemailer-config';
 
 interface Attachment {
   filename: string;
@@ -21,13 +21,21 @@ export async function sendEmail(toEmail: string, subject: string, context: strin
     to: toEmail,
     subject,
     html: context,
-    // Note: Resend handles attachments differently - you may need to adjust this based on your needs
     attachments
   };
 
+  console.log('Attempting to send email with config:', {
+    from: emailConfig.from,
+    to: emailConfig.to,
+    subject: emailConfig.subject
+  });
+
   try {
-    await resend.emails.send(emailConfig);
+    const result = await transporter.sendMail(emailConfig);
+    console.log('Email sent successfully:', result);
+    return result;
   } catch (error) {
+    console.error('Error sending email:', error);
     throw error;
   }
 }
