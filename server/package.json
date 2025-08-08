@@ -5,7 +5,9 @@
   "author": "Tom Nagle",
   "license": "MIT",
   "scripts": {
-    "start": "tsnd --exit-child --transpile-only src/main.ts"
+    "start": "tsnd --exit-child --transpile-only src/main.ts",
+    "build": "tsc",
+    "vercel-build": "echo 'No build step required for Vercel deployment'"
   },
   "dependencies": {
     "@mantine/form": "^4.1.2",
