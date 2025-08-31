@@ -31,10 +31,13 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
       if (!!isEmailVerified) {
         throw 'User already exists';
       }
-
+      
+      // If user exists but email is not verified, send verification link and return
       await sendEmaiLink(isUser);
+      return apiResponse(res, 'Verification email resent successfully', { email: isUser.email }, 200);
     }
 
+    // Only create a new user if the email doesn't exist
     const user = await createUser(req.body);
 
     const propertyId = req.body.propertyId;

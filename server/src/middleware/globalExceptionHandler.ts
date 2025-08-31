@@ -12,6 +12,12 @@ export function ErrorHandler(err: any, req: Request, res: Response, next: NextFu
       const statusCode = is404 ? StatusCodes.NOT_FOUND : is409 ? StatusCodes.CONFLICT : StatusCodes.BAD_REQUEST;
       logger.error(err);
       return apiError(res, err, statusCode);
+      
+    // Handle MongoDB duplicate key errors
+    case err.code === 11000:
+      logger.error(err);
+      const duplicateField = Object.keys(err.keyValue)[0];
+      return apiError(res, `${duplicateField} already exists`, StatusCodes.CONFLICT);
 
     case err.name === 'ValidationError':
       logger.error(err);
