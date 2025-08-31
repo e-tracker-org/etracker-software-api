@@ -7,7 +7,7 @@ export const emailConfirmationLinkTemplate = (user: User, token: string) => {
   //   CORS_ORIGIN.split(',')[0] || CORS_ORIGIN.split(',')[2] ? CORS_ORIGIN.split(',')[2] : CORS_ORIGIN
   // }/auth/signin?token=${token}`;
   const html = `
-        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname} </h4>,
+        <h4 style="padding-bottom: 0px; margin-bottom: 0px">Dear ${user.firstname} ${user.lastname}, </h4>
         <p>Thank you for registering with E-tracka. <br/>
         To activate your account and start using our service, please confirm your email address by clicking on the following link or copy and paste it into your browser:<br/>
         
