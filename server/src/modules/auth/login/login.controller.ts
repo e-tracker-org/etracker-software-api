@@ -24,10 +24,24 @@ export async function loginHandler(req: Request<{}, {}, LoginBody>, res: Respons
   try {
     const user = await findUserByEmail(email);
 
-    if (!user || !(await comparePasswords(user.password, password))) {
+    if (!user) {
       return apiError(res, 'Invalid email or password', 401);
     }
-    // Send email verification link if isEmailVerified is false
+
+    // Check password validity
+    const isPasswordValid = await comparePasswords(user.password, password);
+    
+    if (!isPasswordValid) {
+      return apiError(res, 'Invalid email or password', 401);
+    }
+
+    // If password is valid but not hashed, update it
+    if (!user.password.startsWith('$')) {
+      user.password = await argon2.hash(password);
+      await user.save();
+    }
+
+    // Send email verification link if needed
     if (!user.isEmailVerified) {
       await sendemail(user);
       return apiResponse(res, 'Email verification mail is sent successfully', {}, 201);
