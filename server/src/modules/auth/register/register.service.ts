@@ -1,8 +1,18 @@
 import { User, UserModel } from './register.model';
 import { RegisterUserBody } from './register.schema';
 
-export async function createUser(user: RegisterUserBody) {
-  return await UserModel.create(user);
+export async function createUser(userData: RegisterUserBody) {
+  const { firstname, lastname, email, phone, password, accountTypes = [] } = userData;
+  
+  return await UserModel.create({
+    firstname,
+    lastname,
+    email,
+    phone,
+    password,
+    accountTypes,
+    isEmailVerified: false
+  });
 }
 
 export async function updateUserById(id: string, update: object) {
@@ -28,4 +38,3 @@ export async function updateProfileById(id: string, update: object) {
 
   return  UserModel.findByIdAndUpdate(id, unsetQuery);
 }
-

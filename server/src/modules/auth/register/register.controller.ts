@@ -5,7 +5,7 @@ import { apiResponse } from '../../../utils/response';
 import { signJwt } from '../login/login.utils';
 import { emailFormat } from './register.email';
 import { RegisterUserBody } from './register.schema';
-import { createUser, findUserByEmail } from './register.service';
+import { createUser, findUserByEmail, updateUserById } from './register.service';
 import { emailConfirmationLinkTemplate } from '../../../utils/email-templates';
 import { User } from './register.model';
 import { findById as findPropertyById } from "../../property/property.service";
@@ -32,9 +32,19 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
         throw 'User already exists';
       }
       
-      // If user exists but email is not verified, send verification link and return
-      await sendEmaiLink(isUser);
-      return apiResponse(res, 'Verification email resent successfully', { email: isUser.email }, 200);
+      // If user exists but email is not verified, update the user with new details
+      const updatedUser = await updateUserById(isUser._id, {
+        firstname: req.body.firstname,
+        lastname: req.body.lastname,
+        phone: req.body.phone,
+        password: req.body.password,
+        // Keep existing accountTypes if any, or use the new ones
+        accountTypes: isUser.accountTypes?.length ? isUser.accountTypes : req.body.accountTypes || []
+      });
+
+      // Resend verification email with the updated user data
+      await sendEmaiLink(updatedUser);
+      return apiResponse(res, 'Verification email resent successfully', { email: updatedUser?.email }, 200);
     }
 
     // Only create a new user if the email doesn't exist
@@ -118,4 +128,3 @@ export const sendEmaiLink = async (user: any) => {
   const token = signJwt({ sub: user.email }, EMAIL_VERIFICATION_EXPIRES_IN);
   return await sendEmail(user.email, emailFormat.subject, emailConfirmationLinkTemplate(user, token));
 };
-
