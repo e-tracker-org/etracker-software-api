@@ -29,6 +29,12 @@ export async function sendEmail(toEmail: string, subject: string, context: strin
     to: emailConfig.to,
     subject: emailConfig.subject
   });
+  
+  console.log('Environment check:', {
+    MAIL_USER: process.env.MAIL_USER,
+    MAIL_PASS: process.env.MAIL_PASS ? 'SET' : 'NOT SET',
+    NODE_ENV: process.env.NODE_ENV
+  });
 
   // Retry logic for email sending
   const maxRetries = 3;
