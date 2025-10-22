@@ -43,7 +43,13 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
       });
 
       // Resend verification email with the updated user data
-      await sendEmaiLink(updatedUser);
+      try {
+        await sendEmaiLink(updatedUser);
+      } catch (emailErr) {
+        console.error('Failed to resend verification email to updated user:', emailErr);
+        return apiResponse(res, 'User updated but failed to resend verification email', { email: updatedUser?.email, emailError: String(emailErr) }, 200);
+      }
+
       return apiResponse(res, 'Verification email resent successfully', { email: updatedUser?.email }, 200);
     }
 
@@ -98,8 +104,13 @@ export async function registerUserHandler(req: Request<{}, {}, RegisterUserBody>
     }
 
     // Send verification email after the user is created and the tenant is processed
-    await sendEmaiLink(user);
-    return apiResponse(res, 'User created and verification mail is sent successfully', user, 201);
+    try {
+      await sendEmaiLink(user);
+      return apiResponse(res, 'User created and verification mail is sent successfully', user, 201);
+    } catch (emailErr) {
+      console.error('User created but failed to send verification email:', emailErr);
+      return apiResponse(res, 'User created but failed to send verification email', { user, emailError: String(emailErr) }, 201);
+    }
   } catch (err) {
     next(err);
   }

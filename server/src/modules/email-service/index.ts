@@ -16,12 +16,24 @@ interface Attachment {
  * @return {*}
  */
 export async function sendEmail(toEmail: string, subject: string, context: string, attachments?: Attachment[]) {
+  // Ensure the 'from' header matches the authenticated SMTP user where possible.
+  const fromAddress = MAIL_USER ? `E-Tracka <${MAIL_USER}>` : 'no-reply@e-tracka.com';
+
+  if (!MAIL_USER && process.env.NODE_ENV === 'production') {
+    console.warn('MAIL_USER is not set in production. Emails may be rejected by the SMTP server.');
+  }
+
   const emailConfig = {
-    from: MAIL_USER || 'no-reply@e-tracka.com',
+    from: fromAddress,
     to: toEmail,
     subject,
     html: context,
-    attachments
+    attachments,
+    // ensure SMTP MAIL FROM uses authenticated user where available to avoid provider rejection
+    envelope: {
+      from: process.env.MAIL_USER || fromAddress,
+      to: toEmail
+    }
   };
 
   console.log('Attempting to send email with config:', {
@@ -35,6 +47,9 @@ export async function sendEmail(toEmail: string, subject: string, context: strin
     MAIL_PASS: process.env.MAIL_PASS ? 'SET' : 'NOT SET',
     NODE_ENV: process.env.NODE_ENV
   });
+
+  // Helpful debug: show the 'from' being used vs the authenticated user
+  console.log('Email from/header vs MAIL_USER:', { from: emailConfig.from, envelopeFrom: emailConfig.envelope?.from, MAIL_USER: process.env.MAIL_USER });
 
   // Retry logic for email sending
   const maxRetries = 3;

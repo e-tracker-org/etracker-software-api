@@ -13,6 +13,7 @@ const nodemailer = require('nodemailer');
 // });
 console.log('MAIL_USER:', MAIL_USER);
 console.log('MAIL_PASS:', MAIL_PASS);
+console.log('NODE_ENV:', process.env.NODE_ENV);
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
