@@ -16,8 +16,8 @@ console.log('MAIL_PASS:', MAIL_PASS);
 
 let transporter = nodemailer.createTransport({
   host: "smtp.gmail.com",
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  port: 456,
+  secure: true, // true for 465, false for other ports
   auth: {
     user: MAIL_USER,
     pass: MAIL_PASS,
