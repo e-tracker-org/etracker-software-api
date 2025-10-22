@@ -30,12 +30,28 @@ export async function sendEmail(toEmail: string, subject: string, context: strin
     subject: emailConfig.subject
   });
 
-  try {
-    const result = await transporter.sendMail(emailConfig);
-    console.log('Email sent successfully:', result);
-    return result;
-  } catch (error) {
-    console.error('Error sending email:', error);
-    throw error;
+  // Retry logic for email sending
+  const maxRetries = 3;
+  let lastError;
+
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`Email attempt ${attempt}/${maxRetries}`);
+      const result = await transporter.sendMail(emailConfig);
+      console.log('Email sent successfully:', result);
+      return result;
+    } catch (error) {
+      lastError = error;
+      console.error(`Error sending email (attempt ${attempt}/${maxRetries}):`, error);
+      
+      if (attempt < maxRetries) {
+        const delay = attempt * 2000; // Exponential backoff: 2s, 4s, 6s
+        console.log(`Retrying in ${delay}ms...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
+      }
+    }
   }
+
+  console.error('Failed to send email after all retries:', lastError);
+  throw lastError;
 }
