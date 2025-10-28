@@ -38,6 +38,12 @@ function getUploadFileName(req: Request, file: Express.Multer.File) {
   return fileName;
 }
 
+// Helpful debug: show which directory is being used for uploads at runtime.
+// This is especially useful when running on serverless hosts where the
+// writable path may be different (for example, '/tmp').
+// eslint-disable-next-line no-console
+console.log('Upload directory configured as:', uploadDir);
+
 const storage = multer.diskStorage({
   destination: (req: Request, file: Express.Multer.File, cb: Function) => cb(null, uploadDir),
   filename: (req: Request, file: Express.Multer.File, cb: Function) => {
