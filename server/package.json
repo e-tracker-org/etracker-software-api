@@ -8,6 +8,7 @@
     "start": "tsnd --exit-child --transpile-only src/main.ts"
   },
   "dependencies": {
+    "@getbrevo/brevo": "^3.0.1",
     "@mantine/form": "^4.1.2",
     "@types/passport": "^1.0.12",
     "@types/passport-google-oauth20": "^2.0.11",
