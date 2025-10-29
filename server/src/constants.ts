@@ -17,7 +17,7 @@ export const EXPRESS_SESSION_SECRET = process.env.EXPRESS_SESSION_SECRET || '';
 
 // Brevo API configuration
 export const BREVO_API_KEY = process.env.BREVO_API_KEY ?? '';
-export const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'no-reply@e-tracka.com';
+export const BREVO_SENDER_EMAIL = process.env.BREVO_SENDER_EMAIL || 'etracka.tech@gmail.com';
 export const BREVO_SENDER_NAME = process.env.BREVO_SENDER_NAME || 'E-Tracka';
 
 // Cloud storage configuration

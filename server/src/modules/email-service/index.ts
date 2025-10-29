@@ -7,7 +7,7 @@ interface Attachment {
   contentType: string;
 }
 
-const defaultSenderEmail = BREVO_SENDER_EMAIL || 'no-reply@e-tracka.com';
+const defaultSenderEmail = BREVO_SENDER_EMAIL || 'etracka.tech@gmail.com';
 const defaultSenderName = BREVO_SENDER_NAME || 'E-Tracka';
 
 // Initialize Brevo API client
