@@ -1,21 +1,17 @@
-import transporter from "../utils/nodemailer-config";
-import { GMAIL_USER,  MAIL_USER,  OTP_EXPIRY_DATE_IN_MINUTES } from "../constants";
+import { OTP_EXPIRY_DATE_IN_MINUTES } from "../constants";
+import { sendEmail } from "../modules/email-service";
 
 export async function sendOtp(toEmail: string, otp: string) {
-
-    // Define the email message
-    const message = {
-        from: MAIL_USER,
-        to: toEmail,
-        subject: 'Forgot Password OTP',
-        text: `Your OTP is ${otp}. Expires in ${OTP_EXPIRY_DATE_IN_MINUTES} minutes.`
-    };
-
     try {
-        // Send the email
-        await transporter.sendMail(message);
+        const subject = 'Forgot Password OTP';
+        const html = `
+            <h2>Password Reset OTP</h2>
+            <p>Your OTP is: <strong>${otp}</strong></p>
+            <p>This OTP will expire in ${OTP_EXPIRY_DATE_IN_MINUTES} minutes.</p>
+            <p>If you did not request this password reset, please ignore this email.</p>
+        `;
 
-        // Return the OTP so it can be verified
+        await sendEmail(toEmail, subject, html);
         return otp;
     } catch (error) {
         throw new Error('Error sending OTP');

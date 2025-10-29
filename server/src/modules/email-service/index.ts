@@ -1,55 +1,57 @@
-import { MAIL_USER } from '../../constants';
-import transporter from '../../utils/nodemailer-config';
+import * as Brevo from '@getbrevo/brevo';
+import { BREVO_API_KEY, BREVO_SENDER_EMAIL, BREVO_SENDER_NAME } from '../../constants';
 
 interface Attachment {
   filename: string;
-  content: any;
+  content: string;
   contentType: string;
 }
 
-/**
- * email service that configures and sends email with parameters to recipient.
- * @export
- * @param {string} toEmail
- * @param {string} subject subject of email
- * @param {string} html html template of email
- * @return {*}
- */
-export async function sendEmail(toEmail: string, subject: string, context: string, attachments?: Attachment[]) {
-  // Ensure the 'from' header matches the authenticated SMTP user where possible.
-  const fromAddress = MAIL_USER ? `E-Tracka <${MAIL_USER}>` : 'no-reply@e-tracka.com';
+const defaultSenderEmail = BREVO_SENDER_EMAIL || 'no-reply@e-tracka.com';
+const defaultSenderName = BREVO_SENDER_NAME || 'E-Tracka';
 
-  if (!MAIL_USER && process.env.NODE_ENV === 'production') {
-    console.warn('MAIL_USER is not set in production. Emails may be rejected by the SMTP server.');
+// Initialize Brevo API client
+const apiInstance = new Brevo.TransactionalEmailsApi();
+
+// Only set API key if it exists to avoid TypeScript error
+if (!BREVO_API_KEY) {
+  throw new Error('BREVO_API_KEY must be set in environment variables');
+}
+apiInstance.setApiKey(Brevo.TransactionalEmailsApiApiKeys.apiKey, BREVO_API_KEY);
+
+/**
+ * Email service that sends transactional emails using Brevo API.
+ * @export
+ * @param {string} toEmail - Recipient's email address
+ * @param {string} subject - Subject of email
+ * @param {string} html - HTML content of email
+ * @param {Attachment[]} [attachments] - Optional attachments
+ * @return {Promise<void>}
+ */
+export async function sendEmail(toEmail: string, subject: string, html: string, attachments?: Attachment[]) {
+  if (!process.env.BREVO_API_KEY) {
+    throw new Error('BREVO_API_KEY is not set in environment variables');
   }
 
-  const emailConfig = {
-    from: fromAddress,
-    to: toEmail,
-    subject,
-    html: context,
-    attachments,
-    // ensure SMTP MAIL FROM uses authenticated user where available to avoid provider rejection
-    envelope: {
-      from: process.env.MAIL_USER || fromAddress,
-      to: toEmail
-    }
-  };
-
-  console.log('Attempting to send email with config:', {
-    from: emailConfig.from,
-    to: emailConfig.to,
-    subject: emailConfig.subject
-  });
+  const sendSmtpEmail = new Brevo.SendSmtpEmail();
   
-  console.log('Environment check:', {
-    MAIL_USER: process.env.MAIL_USER,
-    MAIL_PASS: process.env.MAIL_PASS ? 'SET' : 'NOT SET',
-    NODE_ENV: process.env.NODE_ENV
-  });
+  sendSmtpEmail.subject = subject;
+  sendSmtpEmail.htmlContent = html;
+  sendSmtpEmail.sender = {
+    name: defaultSenderName,
+    email: defaultSenderEmail
+  };
+  sendSmtpEmail.to = [{
+    email: toEmail
+  }];
 
-  // Helpful debug: show the 'from' being used vs the authenticated user
-  console.log('Email from/header vs MAIL_USER:', { from: emailConfig.from, envelopeFrom: emailConfig.envelope?.from, MAIL_USER: process.env.MAIL_USER });
+  if (attachments?.length) {
+    sendSmtpEmail.attachment = attachments.map(attachment => ({
+      name: attachment.filename,
+      content: attachment.content,
+      type: attachment.contentType
+    }));
+  }
 
   // Retry logic for email sending
   const maxRetries = 3;
@@ -58,7 +60,7 @@ export async function sendEmail(toEmail: string, subject: string, context: strin
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
       console.log(`Email attempt ${attempt}/${maxRetries}`);
-      const result = await transporter.sendMail(emailConfig);
+      const result = await apiInstance.sendTransacEmail(sendSmtpEmail);
       console.log('Email sent successfully:', result);
       return result;
     } catch (error) {
