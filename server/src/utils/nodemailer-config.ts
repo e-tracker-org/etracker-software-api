@@ -16,12 +16,12 @@ console.log('MAIL_PASS:', MAIL_PASS);
 console.log('NODE_ENV:', process.env.NODE_ENV);
 
 let transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
-  port: 465,
-  secure: true, // true for 465, false for other ports
+  host: "smtp-relay.brevo.com",
+  port: 587,
+  secure: false,
   auth: {
     user: MAIL_USER,
-    pass: MAIL_PASS,
+    pass: MAIL_PASS, 
   },
   tls: {
     rejectUnauthorized: false
