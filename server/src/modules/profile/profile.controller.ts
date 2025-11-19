@@ -42,16 +42,36 @@ export async function findUserByEmailHandler(req: Request<{}, {}>, res: Response
 }
 
 export async function updateUserHandler(req: Request<{}, {}, UpdateProfileBody>, res: Response, next: NextFunction) {
-  const { email, accountType } = req.body;
+  const { email } = req.body;
 
   try {
     const profile = await findByEmail(email);
-    // const account = await findAccountTypeById(accountType);
 
-    // if (!account) throw 'Account type not found';
     if (profile) {
-      Object.assign(profile, req.body);
-      // profile.accountTypes?.push(account);
+      // Whitelist allowed fields to prevent unintended overwrites (e.g., from form submissions with document uploads)
+      const allowedFields = [
+        'firstname',
+        'lastname',
+        'state',
+        'phone',
+        'gender',
+        'dob',
+        'country',
+        'area',
+        'fullAddress',
+        'landmark',
+        'accountType',
+        'currentKyc',
+        'rating'
+      ];
+
+      // Only assign whitelisted fields from request body
+      allowedFields.forEach((field) => {
+        if (field in req.body) {
+          (profile as any)[field] = (req.body as any)[field];
+        }
+      });
+
       const data = await profile.save();
       return apiResponse(res, 'User profile updated successfully', data, StatusCodes.OK);
     }
