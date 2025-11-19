@@ -16,36 +16,49 @@ import { PropertyModel } from '../../property/property.model';
 import { User } from '../register/register.model';
 
 const db = require('../../../models/');
+const logger = require('../../../utils/logger');
 
 const NewTenant = db.tenant;
 
 export async function loginHandler(req: Request<{}, {}, LoginBody>, res: Response, next: NextFunction) {
   const { email, password } = req.body;
   try {
+    logger.info(`[LOGIN] Attempt for email: ${email}`);
     const user = await findUserByEmail(email);
 
     if (!user) {
+      logger.warn(`[LOGIN] User not found with email: ${email}`);
       return apiError(res, 'Invalid email or password', 401);
     }
 
+    logger.info(`[LOGIN] User found: ${user.id} | Email verified: ${user.isEmailVerified}`);
+
     // Check password validity
+    logger.debug(`[LOGIN] Stored password hash starts with: ${user.password?.substring(0, 3)}...`);
     const isPasswordValid = await comparePasswords(user.password, password);
+    logger.info(`[LOGIN] Password valid: ${isPasswordValid}`);
     
     if (!isPasswordValid) {
+      logger.warn(`[LOGIN] Invalid password for user: ${user.id}`);
       return apiError(res, 'Invalid email or password', 401);
     }
 
     // If password is valid but not hashed, update it
     if (!user.password.startsWith('$')) {
+      logger.info(`[LOGIN] Password not hashed for user ${user.id}, hashing now...`);
       user.password = await argon2.hash(password);
       await user.save();
+      logger.info(`[LOGIN] Password hashed and saved for user ${user.id}`);
     }
 
     // Send email verification link if needed
     if (!user.isEmailVerified) {
+      logger.info(`[LOGIN] Email not verified for user ${user.id}, sending verification email`);
       await sendemail(user);
       return apiResponse(res, 'Email verification mail is sent successfully', {}, 201);
     }
+
+    logger.info(`[LOGIN] Email verified for user ${user.id}, proceeding with login`);
 
     const propertyId = req.body.propertyId;
 
@@ -95,10 +108,13 @@ export async function loginHandler(req: Request<{}, {}, LoginBody>, res: Respons
     }
 
     const jwt = signJwt({ id: user.id, email: user.email });
+    logger.info(`[LOGIN] JWT token generated for user ${user.id}`);
     attachCookie(res, jwt);
 
+    logger.info(`[LOGIN] Login successful for user ${user.id}`);
     return apiResponse(res, 'Login successful', { tokens: jwt, user });
   } catch (err) {
+    logger.error(`[LOGIN] Error during login attempt for email ${req.body.email}:`, err);
     next(err);
   }
 }

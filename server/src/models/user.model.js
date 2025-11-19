@@ -1,4 +1,6 @@
 module.exports = (mongoose) => {
+  const argon2 = require('argon2');
+
   var schema = mongoose.Schema(
     {
       firstname: { type: String, required: true },
@@ -32,6 +34,43 @@ module.exports = (mongoose) => {
     },
     { timestamps: true }
   );
+
+  // Hash password before saving if it's new or modified
+  schema.pre('save', async function (next) {
+    try {
+      if (this.isModified('password') || this.isNew) {
+        if (this.password && !this.password.startsWith('$')) {
+          this.password = await argon2.hash(this.password);
+        }
+      }
+      return next();
+    } catch (err) {
+      return next(err);
+    }
+  });
+
+  // Handle password hashing on findOneAndUpdate / findByIdAndUpdate
+  schema.pre('findOneAndUpdate', async function (next) {
+    try {
+      const update = this.getUpdate();
+      if (update && update.$set && update.$set.password) {
+        const newPass = update.$set.password;
+        if (newPass && !newPass.startsWith('$')) {
+          update.$set.password = await argon2.hash(newPass);
+          this.setUpdate(update);
+        }
+      } else if (update && update.password) {
+        const newPass = update.password;
+        if (newPass && !newPass.startsWith('$')) {
+          update.password = await argon2.hash(newPass);
+          this.setUpdate(update);
+        }
+      }
+      return next();
+    } catch (err) {
+      return next(err);
+    }
+  });
 
   schema.method('toJSON', function () {
     const { __v, _id, ...object } = this.toObject();
