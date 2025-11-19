@@ -14,9 +14,9 @@ import { findById as findPropertyById } from '../../property/property.service';
 import { PropertyStatus } from '../../landlord/landlord.model';
 import { PropertyModel } from '../../property/property.model';
 import { User } from '../register/register.model';
+import logger from '../../../utils/logger';
 
 const db = require('../../../models/');
-const logger = require('../../../utils/logger');
 
 const NewTenant = db.tenant;
 
