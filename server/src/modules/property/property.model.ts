@@ -67,7 +67,7 @@ export class Property {
   @prop({ required: true })
   public address!: string;
 
-  @prop({ default: false })
+  @prop({ default: true })
   public is_active?: boolean;
 
   @prop({ required: true, enum: Status })

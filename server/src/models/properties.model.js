@@ -10,7 +10,7 @@ module.exports = mongoose => {
         number_of_bath: Number,
         location: Object,
         address: String,
-        is_active: Boolean,
+        is_active: { type: Boolean, default: true },
         status: String,
         apartmentType: String,
         image_list: [{ type: mongoose.Schema.Types.ObjectId, ref: 'files' }],
