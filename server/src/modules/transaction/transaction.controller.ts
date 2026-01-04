@@ -126,4 +126,7 @@ export async function findTransanctionHandler(req: Request<{}, {}, {}>, res: Res
     const transactions = await findTransaction(user.id, accountType);
 
     return apiResponse(res, `Transactions fetched successfully`, transactions, 200);
+  } catch (err) {
+    next(err);
+  }
 }
