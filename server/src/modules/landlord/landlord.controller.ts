@@ -105,42 +105,28 @@ export async function addTenantToPropertyHandler(req: Request<{}, {}, any[]>, re
           Object.assign(property, property);
           const data = await property.save();
 
-          const newTenant = new NewTenant({
-            userId: user.id,
-            propertyId: property.id,
-            landlordId: property.current_owner,
-            status: PropertyStatus.INCOMPLETE,
-          });
-
-          // Check if the tenant already exists
-          NewTenant.findOne({
-            userId: newTenant.userId,
-            propertyId: newTenant.propertyId,
-            landlordId: newTenant.landlordId,
-          })
-            .then((existingTenant: any) => {
-              if (existingTenant) {
-                // Tenant already exists, handle accordingly (e.g., send an error response)
-                console.log('Tenant already exists:', existingTenant);
-                // Handle the case where the tenant already exists
-              } else {
-                // Save the tenant in the database if it doesn't already exist
-                newTenant
-                  .save()
-                  .then((tenantData: any) => {
-                    // Handle successful save
-                    console.log('Tenant saved successfullys:', tenantData);
-                  })
-                  .catch((err: { message: any }) => {
-                    // Handle save error
-                    console.error('Error saving tenant:', err.message);
-                  });
-              }
-            })
-            .catch((err: { message: any }) => {
-              // Handle query error
-              console.error('Error checking for existing tenant:', err.message);
+          try {
+            // Check if the tenant record already exists
+            const existingTenant = await NewTenant.findOne({
+              userId: tenant?.id,
+              propertyId: property.id,
+              landlordId: property.current_owner,
             });
+
+            if (!existingTenant) {
+              // Save the tenant in the database if it doesn't already exist
+              const newTenant = new NewTenant({
+                userId: tenant?.id,
+                propertyId: property.id,
+                landlordId: property.current_owner,
+                status: PropertyStatus.INCOMPLETE,
+              });
+              await newTenant.save();
+            }
+          } catch (dbError) {
+            console.error('Error managing tenant record:', dbError);
+            // Log error but don't fail the entire request
+          }
         }
 
         // Prepare email info
@@ -202,12 +188,22 @@ export async function confirmTenantPropertyHandler(
       propertyTenant.isActive = true;
 
       //Confirm tenant to property
-      const index = property.tenant.findIndex((tenant) => tenant.tenantId === tenantId);
-      if (!(index !== -1)) throw `Tenant with the provided ${tenantId} does not exist `;
-      if (index !== -1) property.tenant[index] = propertyTenant;
-
+      const index = property.tenant.findIndex((t) => t.tenantId === tenantId);
+      if (index === -1) throw `Tenant with the provided ${tenantId} does not exist`;
+      
+      property.tenant[index] = propertyTenant;
       Object.assign(property, property);
       const data = await property.save();
+
+      // Update tenant record status in NewTenant collection
+      try {
+        await NewTenant.updateOne(
+          { userId: tenantId, propertyId: propertyId },
+          { status: PropertyStatus.COMPLETE }
+        );
+      } catch (dbError) {
+        console.error('Error updating tenant record:', dbError);
+      }
 
       return apiResponse(res, `Tenant successfully added to property ${property.name}`, data, 201);
     } else {
@@ -371,28 +367,28 @@ export async function notifyTenantHandler(req: Request<{}, {}, ReceiptBody>, res
   const { tenantIds, notifyMsg } = req.body;
 
   if (!notifyMsg) return apiError(res, `Notification message required`, StatusCodes.BAD_REQUEST);
-  if (tenantIds.length < 1) return apiError(res, `Tenant id is required`, StatusCodes.BAD_REQUEST);
+  if (!tenantIds || tenantIds.length < 1) return apiError(res, `Tenant id is required`, StatusCodes.BAD_REQUEST);
 
   try {
     //Confirm logged in user exist
     const user = await findUserByEmail(email);
     if (!user) return apiError(res, `User not found`, StatusCodes.NOT_FOUND);
 
-    // confirm the user is either  landlord
-    if (user.currentKyc?.accountType === 2){
-
-    const firstname = user.firstname;
-    const lastname = user.lastname;
-    for (const tenantId of tenantIds) {
-      const tenant = await findById(tenantId);
-      if (tenant) {
-        await sendNotifyTenantEmail(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
+    // confirm the user is a landlord (accountType 2)
+    if (user.accountTypes && user.accountTypes.includes(2)) {
+      const firstname = user.firstname;
+      const lastname = user.lastname;
+      
+      for (const tenantId of tenantIds) {
+        const tenant = await findById(tenantId);
+        if (tenant) {
+          await sendNotifyTenantEmail(tenant.email, notifyMsg, firstname, lastname, tenant.firstname);
+        }
       }
+      return apiResponse(res, `Email notification message successfully sent`, null, 201);
+    } else {
+      return apiError(res, `User is not a landlord`, StatusCodes.FORBIDDEN);
     }
-    return apiResponse(res, `Email notification message successfully sent`, null, 201);
-  }{
-    return apiError(res, `User is not a landlord`, StatusCodes.NOT_FOUND);
-  }
   } catch (err) {
     next(err);
   }

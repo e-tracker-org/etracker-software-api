@@ -18,6 +18,8 @@ import tenantRouter from '../modules/tenant/tenant.route';
 import landlordRouter from '../modules/landlord/landlord.route';
 import ReceiptRoute from '../modules/receipt/receipt.route';
 import transactionRoute from '../modules/transaction/transaction.route';
+import inquiryRoute from '../modules/inquiry/inquiry.route';
+import bookingRoute from '../modules/booking/booking.route';
 
 // new route structure
 // @ts-ignore
@@ -118,6 +120,14 @@ const routes: RoutesInterface[] = [
   {
     path: '/transaction',
     route: transactionRoute,
+  },
+  {
+    path: '/inquiry',
+    route: inquiryRoute,
+  },
+  {
+    path: '/booking',
+    route: bookingRoute,
   },
   {
     path: '/con-job',

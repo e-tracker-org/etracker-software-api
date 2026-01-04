@@ -1,13 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
 import { ReceiptBody } from '../receipt/receipt.schema';
 import { findUserByEmail } from '../auth/register/register.service';
-import { createReceiptCategory, findReceiptByCategory, findReceiptById } from '../receipt/receipt.service';
+import { createReceiptCategory, findReceiptByCategory, findReceiptById, updateReceiptHistoryStatus } from '../receipt/receipt.service';
 import { apiResponse } from '../../utils/response';
 import { transactionBody } from './transaction.schema';
 import { createTransaction, findTransaction, updateTransaction } from './transaction.service';
 import { findById } from '../profile/profile.service';
 import { genarateUniqueId as generateTransactionId } from '../../utils/generateUniqueId';
-import { number } from 'zod';
+import { StatusCodes } from 'http-status-codes';
 
 export async function createTransactionHandler(
   req: Request<{}, {}, transactionBody>,
@@ -22,13 +22,10 @@ export async function createTransactionHandler(
     if (!user) throw 'User not found';
 
     //Validate all request parameters
-    if (!category) throw 'Transaction category is required';
+    if (!category || category.trim() === '') throw 'Transaction category is required';
     if (!dueDate) throw 'Transaction due date is required';
-    if (!amount) throw 'Transaction amount is required';
-    if (!tenants) throw 'Transaction receipients  required';
-
-    // const categoryExist = await findReceiptById(category);
-    // if(!categoryExist) throw 'Receipt category does not exist';
+    if (!amount || amount <= 0) throw 'Valid transaction amount is required';
+    if (!tenants || !Array.isArray(tenants) || tenants.length === 0) throw 'Transaction recipients are required';
 
     const categoryDescriptions: Record<string, string> = {
       rent: 'Monthly rent payment',
@@ -50,6 +47,7 @@ export async function createTransactionHandler(
     const transactionInfo: any = req.body;
     transactionInfo.created_by = user.id;
     const recipients = [];
+    const transactionIds: string[] = [];
 
     const processedIds = new Set(); // Set to store processed IDs
 
@@ -71,11 +69,15 @@ export async function createTransactionHandler(
 
       // set up recipients' email to send receipt to
       const tenantInfo = await findById(tenantId);
-      recipients.push({ id: tenantInfo.id, email: tenantInfo.email });
+      const transactionId = generateTransactionId();
+      recipients.push({ id: tenantInfo.id, email: tenantInfo.email, transactionId });
+      transactionIds.push(transactionId);
     }
+    
     transactionInfo.description = categoryDescriptions[lowercaseCategory];
     transactionInfo.category = category;
     transactionInfo.recipients = recipients;
+    transactionInfo.transactionIds = transactionIds;
     res.locals.transactionInfo = transactionInfo;
     next();
   } catch (err) {
@@ -86,11 +88,23 @@ export async function createTransactionHandler(
 export async function updateTransactionHandler(req: Request<{}, {}, {}>, res: Response, next: NextFunction) {
   const { receiptURL, recipients } = res.locals.updateTransactionInfo;
 
-  for (const recipient of recipients) {
-    const transactionId = generateTransactionId();
-    await updateTransaction(recipient.id, { transactionId, receiptFile: receiptURL });
+  try {
+    for (const recipient of recipients) {
+      const transactionId = generateTransactionId();
+      await updateTransaction(recipient.id, { transactionId, receiptFile: receiptURL });
+      
+      // Update receipt history with transaction ID
+      try {
+        await updateReceiptHistoryStatus(transactionId, 'DELIVERED');
+      } catch (error) {
+        console.error('Error updating receipt history:', error);
+      }
+    }
+    return apiResponse(res, 'Transaction created and receipt email sent successfully', { receiptURL }, 201);
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    next(error);
   }
-  return apiResponse(res, 'Transaction created and receipt email sent successfully', '', 201);
 }
 
 export async function findTransanctionHandler(req: Request<{}, {}, {}>, res: Response, next: NextFunction) {
@@ -105,11 +119,11 @@ export async function findTransanctionHandler(req: Request<{}, {}, {}>, res: Res
     if (!user) throw 'User not found';
 
     // confirm the user is either a tenant or landlord
-    if (!user.accountTypes.includes(accountType)) throw `User is not a ${+accountType === 1 ? 'tenant' : 'landlord'}`;
+    if (!user.accountTypes || !user.accountTypes.includes(Number(accountType))) {
+      throw `User is not a ${Number(accountType) === 1 ? 'tenant' : 'landlord'}`;
+    }
+    
     const transactions = await findTransaction(user.id, accountType);
 
-    return apiResponse(res, `Tenants successfully fetched`, transactions, 201);
-  } catch (err) {
-    next(err);
-  }
+    return apiResponse(res, `Transactions fetched successfully`, transactions, 200);
 }

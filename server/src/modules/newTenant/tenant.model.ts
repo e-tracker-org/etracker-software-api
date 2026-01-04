@@ -9,6 +9,12 @@ export enum PropertyStatus {
     COMPLETE = 'COMPLETE'
 }
 
+export enum LeaseStatus {
+    ACTIVE = 'ACTIVE',
+    INACTIVE = 'INACTIVE',
+    COMPLETED = 'COMPLETED'
+}
+
 const schemaOptions: IModelOptions = {
     schemaOptions: {
         toJSON: {
@@ -28,6 +34,24 @@ export class Tenant {
 
     @prop({ required: true })
     public propertyId!: string;
+
+    @prop({ required: false, default: null, index: true })
+    public bookingId?: string; // ✅ FIX #7: Link to original application
+
+    @prop({ required: false })
+    public moveInDate?: Date;
+
+    @prop({ required: false })
+    public moveOutDate?: Date;
+
+    @prop({ required: false })
+    public rentAmount?: number;
+
+    @prop({ required: false, enum: LeaseStatus, default: LeaseStatus.ACTIVE })
+    public status?: LeaseStatus;
+
+    @prop({ required: false })
+    public landlordId?: string;
 }
 
 export const TenantModel = getModelForClass(Tenant, { schemaOptions: { timestamps: true } });

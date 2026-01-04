@@ -19,6 +19,13 @@ export enum PropertyStatus {
   COMPLETE = 'COMPLETE'
 }
 
+export enum PropertyAvailability {
+  AVAILABLE = 'AVAILABLE',
+  RENTED = 'RENTED',
+  SOLD = 'SOLD',
+  MAINTENANCE = 'MAINTENANCE'
+}
+
 export interface Tenant{
   tenantId: string;
   status: PropertyStatus;
@@ -75,6 +82,9 @@ export class Property {
 
   @prop({ required: true, enum: ApartmentType })
   public apartmentType!: ApartmentType;
+
+  @prop({ required: true, enum: PropertyAvailability, default: PropertyAvailability.AVAILABLE })
+  public availability!: PropertyAvailability; // AVAILABLE, RENTED, SOLD, MAINTENANCE
 
   @prop({ ref: () => FileItem, default: [] })
   public image_list!: Ref<FileItem>[];

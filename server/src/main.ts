@@ -19,6 +19,8 @@ import RedisStore from 'connect-redis';
 // import passport from "./modules/auth/google/strategy";
 import passport from 'passport';
 import createDirectories from './utils/directories';
+// ✅ FIX #9: Import scheduled jobs
+import { startLeaseExpirationJob } from './jobs/lease-expiration.job';
 const MongoStore = require('connect-mongo');
 const ejs = require('ejs');
 
@@ -95,6 +97,10 @@ app.get('/admin/dashboard', (req, res) => {
 const server = app.listen(PORT, async () => {
   await createDirectories();
   await connectToDatabase();
+  
+  // ✅ FIX #9: Start scheduled jobs
+  startLeaseExpirationJob();
+  
   logger.info(`Server up and running on http://localhost:${PORT}`);
 });
 

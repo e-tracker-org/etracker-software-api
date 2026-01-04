@@ -8,6 +8,12 @@ import propertyConfig from "./property.config";
 
 const router = express.Router();
 
+// Public endpoints - anyone can view properties
+router.get('/public/list', controller.findAllProperties);
+router.get('/public/:id', controller.findPropertiesById);
+router.get('/public/status/:status', controller.findPropertyByStatus);
+
+// Protected endpoints - require authentication
 router
   .route('/')
   .get(authorize(), controller.findAllProperties)
