@@ -16,6 +16,7 @@ import { findUserByEmail } from '../auth/register/register.service';
 import {getFileById} from "../uploads/upload.services";
 import {prop} from "@typegoose/typegoose";
 import {FileItem} from "../uploads/upload.model";
+import { PropertyTypeCategories, AllPropertyTypes, LandSizeUnits } from '../../utils/property-types';
 
 export default {
   createProperty,
@@ -25,6 +26,7 @@ export default {
   findPropertyByUserId,
   updatePropertyById,
   deletePropertyById,
+  getPropertyTypes,
 };
 
 async function createProperty(req: Request, res: Response, next: NextFunction) {
@@ -150,4 +152,18 @@ async function getProperty(id: string) {
   const property = await findById(id);
   if (!property) throw 'Property not found';
   return property;
+}
+
+async function getPropertyTypes(req: Request, res: Response, next: NextFunction) {
+  try {
+    const propertyTypeConfig = {
+      categories: PropertyTypeCategories,
+      allTypes: AllPropertyTypes,
+      landSizeUnits: LandSizeUnits,
+    };
+    
+    return apiResponse(res, 'Property types retrieved successfully', propertyTypeConfig);
+  } catch (err) {
+    next(err);
+  }
 }

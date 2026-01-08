@@ -9,9 +9,27 @@ enum Status {
   SELL = 'SELL',
 }
 
-enum ApartmentType {
+enum PropertyType {
+  // Apartment Types
   FLAT = 'Flat',
+  STUDIO = 'Studio',
+  PENTHOUSE = 'Penthouse',
+  LOFT = 'Loft',
+  
+  // Landed Properties
+  BUNGALOW = 'Bungalow',
   DUPLEX = 'Duplex',
+  DETACHED_HOUSE = 'Detached House',
+  SEMI_DETACHED = 'Semi-Detached',
+  TERRACED_HOUSE = 'Terraced House',
+  MANSION = 'Mansion',
+  VILLA = 'Villa',
+  LAND = 'Land',
+  
+  // Commercial
+  OFFICE = 'Office',
+  SHOP = 'Shop',
+  WAREHOUSE = 'Warehouse',
 }
 
 export enum PropertyStatus {
@@ -56,6 +74,9 @@ export class Property {
   @prop({ required: true })
   public price!: number;
 
+  @prop() // Agreement estimate for rental/lease properties
+  public agreement_estimate?: number;
+
   @prop({ required: true })
   public year_built!: number;
 
@@ -64,6 +85,12 @@ export class Property {
 
   @prop({ required: true })
   public number_of_bath!: number;
+
+  @prop() // Optional for apartments, required for landed properties
+  public land_size?: {
+    value: number;
+    unit: string; // 'sqft', 'sqm', 'acres', 'hectares'
+  };
 
   @prop({ required: true })
   public location!: {
@@ -80,8 +107,8 @@ export class Property {
   @prop({ required: true, enum: Status })
   public status!: Status;
 
-  @prop({ required: true, enum: ApartmentType })
-  public apartmentType!: ApartmentType;
+  @prop({ required: true, enum: PropertyType })
+  public propertyType!: PropertyType;
 
   @prop({ required: true, enum: PropertyAvailability, default: PropertyAvailability.AVAILABLE })
   public availability!: PropertyAvailability; // AVAILABLE, RENTED, SOLD, MAINTENANCE

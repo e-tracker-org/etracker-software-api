@@ -12,6 +12,7 @@ const router = express.Router();
 router.get('/public/list', controller.findAllProperties);
 router.get('/public/:id', controller.findPropertiesById);
 router.get('/public/status/:status', controller.findPropertyByStatus);
+router.get('/public/property-types', controller.getPropertyTypes);
 
 // Protected endpoints - require authentication
 router

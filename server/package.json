@@ -5,7 +5,8 @@
   "author": "Tom Nagle",
   "license": "MIT",
   "scripts": {
-    "start": "tsnd --exit-child --transpile-only src/main.ts"
+    "start": "tsnd --exit-child --transpile-only src/main.ts",
+    "migrate:property-types": "node src/scripts/run-migration.js"
   },
   "dependencies": {
     "@getbrevo/brevo": "^3.0.1",

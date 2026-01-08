@@ -20,6 +20,7 @@ import ReceiptRoute from '../modules/receipt/receipt.route';
 import transactionRoute from '../modules/transaction/transaction.route';
 import inquiryRoute from '../modules/inquiry/inquiry.route';
 import bookingRoute from '../modules/booking/booking.route';
+import migrationRouter from '../modules/migration/migration.route';
 
 // new route structure
 // @ts-ignore
@@ -128,6 +129,10 @@ const routes: RoutesInterface[] = [
   {
     path: '/booking',
     route: bookingRoute,
+  },
+  {
+    path: '/migration',
+    route: migrationRouter,
   },
   {
     path: '/con-job',
