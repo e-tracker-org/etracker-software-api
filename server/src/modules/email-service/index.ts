@@ -3,7 +3,7 @@ import { BREVO_API_KEY, BREVO_SENDER_EMAIL, BREVO_SENDER_NAME } from '../../cons
 
 interface Attachment {
   filename: string;
-  content: string;
+  content: string | Buffer;
   contentType: string;
 }
 
@@ -48,7 +48,7 @@ export async function sendEmail(toEmail: string, subject: string, html: string, 
   if (attachments?.length) {
     sendSmtpEmail.attachment = attachments.map(attachment => ({
       name: attachment.filename,
-      content: attachment.content,
+      content: Buffer.isBuffer(attachment.content) ? attachment.content.toString('base64') : attachment.content,
       type: attachment.contentType
     }));
   }
