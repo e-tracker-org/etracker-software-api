@@ -88,7 +88,7 @@ exports.findAll = (req, res) => {
 
       console.log('userIds', userIds);
 
-      return User.find({ userId: { $in: userIds } }).then((userData) => {
+      return User.find({ _id: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
 
@@ -158,7 +158,7 @@ exports.propertyTenant = (req, res) => {
     .then((tenantData) => {
       const userIds = tenantData.map((tenant) => tenant.userId);
 
-      return User.find({ userId: { $in: userIds } }).then((userData) => {
+      return User.find({ _id: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
 
@@ -195,7 +195,7 @@ exports.landlordTenant = (req, res) => {
       }
       const userIds = tenantData.map((tenant) => tenant.userId);
 
-      return User.find({ userId: { $in: userIds } }).then((userData) => {
+      return User.find({ _id: { $in: userIds } }).then((userData) => {
         const combinedData = tenantData.map((tenant) => {
           const user = userData.find((u) => u.id === tenant.userId);
 

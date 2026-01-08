@@ -1,4 +1,4 @@
-import { KYC, KYCModel } from './kyc.model';
+import { KYC, KYCModel, KycStatus } from './kyc.model';
 import { UserModel } from '../auth/register/register.model';
 
 export async function createKyc(kyc: Omit<KYC, any>) {
