@@ -7,17 +7,30 @@ function create() {
   const body = object({
     name: string({ required_error: 'name of property is required' }).trim(),
     description: string({ required_error: 'description of property is required' }).trim(),
-    price: number({ required_error: 'price of property is required' }),
-    agreement_estimate: number().optional(),
-    year_built: number({ required_error: 'year when property was built is required' })
-      .lte(new Date().getFullYear())
-      .gte(1960),
-    number_of_bedrooms: number({ required_error: 'number of bedrooms in property is required' }).gte(1).lte(10),
-    number_of_bath: number({ required_error: 'number of bathrooms in property is required' }).gte(1).lte(10),
-    land_size: object({
-      value: number().positive(),
-      unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
+    price: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+    agreement_estimate: z.union([string(), number()]).transform(val => {
+      if (!val || val === '') return undefined;
+      return typeof val === 'string' ? parseFloat(val) : val;
     }).optional(),
+    year_built: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+      .refine(val => val <= new Date().getFullYear() && val >= 1960, {
+        message: 'Year must be between 1960 and current year'
+      }),
+    number_of_bedrooms: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+      .refine(val => val >= 0 && val <= 10, {
+        message: 'Number of bedrooms must be between 0 and 10'
+      }).optional(),
+    number_of_bath: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+      .refine(val => val >= 0 && val <= 10, {
+        message: 'Number of bathrooms must be between 0 and 10'
+      }).optional(),
+    land_size: z.union([
+      object({
+        value: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+        unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
+      }),
+      string().transform(val => val === '' ? undefined : val)
+    ]).optional(),
     location: object({
       city: string({ required_error: 'city of property is required' }).trim(),
       state: string({ required_error: 'state of property is required' }).trim(),
@@ -40,17 +53,30 @@ function update() {
   const body = object({
     name: string({ required_error: 'name of property is required' }).trim(),
     description: string({ required_error: 'description of property is required' }).trim(),
-    price: number({ required_error: 'price of property is required' }),
-    agreement_estimate: number().optional(),
-    year_built: number()
-        .lte(new Date().getFullYear())
-        .gte(1960).optional(),
-    number_of_bedrooms: number({ required_error: 'number of bedrooms in property is required' }).gte(1).lte(10),
-    number_of_bath: number({ required_error: 'number of bathrooms in property is required' }).gte(1).lte(10),
-    land_size: object({
-      value: number().positive(),
-      unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
+    price: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+    agreement_estimate: z.union([string(), number()]).transform(val => {
+      if (!val || val === '') return undefined;
+      return typeof val === 'string' ? parseFloat(val) : val;
     }).optional(),
+    year_built: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+        .refine(val => val <= new Date().getFullYear() && val >= 1960, {
+          message: 'Year must be between 1960 and current year'
+        }).optional(),
+    number_of_bedrooms: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+      .refine(val => val >= 0 && val <= 10, {
+        message: 'Number of bedrooms must be between 0 and 10'
+      }).optional(),
+    number_of_bath: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseInt(val) : val)
+      .refine(val => val >= 0 && val <= 10, {
+        message: 'Number of bathrooms must be between 0 and 10'
+      }).optional(),
+    land_size: z.union([
+      object({
+        value: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
+        unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
+      }),
+      string().transform(val => val === '' ? undefined : val)
+    ]).optional(),
     location: object({
       city: string({ required_error: 'city of property is required' }).trim(),
       state: string({ required_error: 'state of property is required' }).trim(),
