@@ -11,8 +11,8 @@ const path = require('path');
 // Load environment variables
 require('dotenv').config({ path: path.join(__dirname, '../../.env') });
 
-// Use the same database utility as main app
-const { connectToDatabase, disconnectFromDatabase } = require('../utils/database');
+// Use MongoDB config that works with JavaScript
+const mongoConfig = require('../../config/mongodb.config');
 const { migratePropertyTypes } = require('./migrate-property-types');
 
 async function runMigration() {
@@ -20,9 +20,16 @@ async function runMigration() {
     console.log('🚀 Starting Property Migration');
     console.log('================================');
     
-    // Connect to MongoDB using same connection as main app
-    console.log('Connecting to database...');
-    await connectToDatabase();
+    // Connect to MongoDB using environment variable or config
+    const mongoUrl = process.env.DB_CONNECTION_STRING || mongoConfig.url;
+    console.log(`Connecting to MongoDB: ${mongoUrl.replace(/\/\/.*@/, '//***:***@')}`);
+    
+    await mongoose.connect(mongoUrl, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
+    
+    console.log('✓ Connected to MongoDB');
     
     console.log('✓ Connected to MongoDB');
     
@@ -44,16 +51,16 @@ async function runMigration() {
     console.error('❌ Migration script failed:', error);
     process.exit(1);
   } finally {
-    // Disconnect from MongoDB using same utility as main app
-    await disconnectFromDatabase();
-    console.log('🔌 Disconnected from database');
+    // Disconnect from MongoDB
+    await mongoose.disconnect();
+    console.log('🔌 Disconnected from MongoDB');
   }
 }
 
 // Handle process termination
 process.on('SIGINT', async () => {
   console.log('\n🛑 Migration interrupted');
-  await disconnectFromDatabase();
+  await mongoose.disconnect();
   process.exit(1);
 });
 
