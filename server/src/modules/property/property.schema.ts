@@ -29,7 +29,20 @@ function create() {
         value: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
         unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
       }),
-      string().transform(val => val === '' ? undefined : val)
+      string().transform(val => {
+        if (val === '' || !val) return undefined;
+        try {
+          // Handle stringified JSON from frontend
+          const parsed = JSON.parse(val);
+          return {
+            value: typeof parsed.value === 'string' ? parseFloat(parsed.value) : parsed.value,
+            unit: parsed.unit
+          };
+        } catch {
+          // If not valid JSON, return undefined
+          return undefined;
+        }
+      })
     ]).optional(),
     location: object({
       city: string({ required_error: 'city of property is required' }).trim(),
@@ -75,7 +88,20 @@ function update() {
         value: z.union([string(), number()]).transform(val => typeof val === 'string' ? parseFloat(val) : val),
         unit: z.enum(['sqft', 'sqm', 'acres', 'hectares'])
       }),
-      string().transform(val => val === '' ? undefined : val)
+      string().transform(val => {
+        if (val === '' || !val) return undefined;
+        try {
+          // Handle stringified JSON from frontend
+          const parsed = JSON.parse(val);
+          return {
+            value: typeof parsed.value === 'string' ? parseFloat(parsed.value) : parsed.value,
+            unit: parsed.unit
+          };
+        } catch {
+          // If not valid JSON, return undefined
+          return undefined;
+        }
+      })
     ]).optional(),
     location: object({
       city: string({ required_error: 'city of property is required' }).trim(),
