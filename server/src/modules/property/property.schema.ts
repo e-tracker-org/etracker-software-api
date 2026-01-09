@@ -56,8 +56,15 @@ function create() {
       'Bungalow', 'Duplex', 'Detached House', 'Semi-Detached', 
       'Terraced House', 'Mansion', 'Villa', 'Land',
       'Office', 'Shop', 'Warehouse'
-    ]),
+    ]).optional(),
+    apartmentType: z.enum(['Flat', 'Duplex']).optional(),
     id: string().optional(),
+  }).transform((data) => {
+    // Use apartmentType as fallback if propertyType is not provided
+    if (!data.propertyType && data.apartmentType) {
+      data.propertyType = data.apartmentType;
+    }
+    return data;
   });
 
   return processRequestBody(body);
@@ -115,8 +122,15 @@ function update() {
       'Bungalow', 'Duplex', 'Detached House', 'Semi-Detached', 
       'Terraced House', 'Mansion', 'Villa', 'Land',
       'Office', 'Shop', 'Warehouse'
-    ]),
+    ]).optional(),
+    apartmentType: z.enum(['Flat', 'Duplex']).optional(),
     id: string().optional(),
+  }).transform((data) => {
+    // Use apartmentType as fallback if propertyType is not provided
+    if (!data.propertyType && data.apartmentType) {
+      data.propertyType = data.apartmentType;
+    }
+    return data;
   });
 
   return processRequestBody(body);
